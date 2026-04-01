@@ -1,0 +1,595 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>EvalPro — Scouting Intelligence</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;700;800;900&display=swap" rel="stylesheet">
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/react/18.2.0/umd/react.production.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/react-dom/18.2.0/umd/react-dom.production.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/babel-standalone/7.23.9/babel.min.js"></script>
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    body { background: #0a0a0a; }
+    ::selection { background: #D4AF37; color: #000; }
+    ::-webkit-scrollbar { width: 6px; }
+    ::-webkit-scrollbar-track { background: #111; }
+    ::-webkit-scrollbar-thumb { background: #333; border-radius: 3px; }
+  </style>
+</head>
+<body>
+  <div id="root"></div>
+  <script type="text/babel">
+const { useState, useEffect } = React;
+
+// ═══════════════════════════════════════
+// AI REWRITER
+// ═══════════════════════════════════════
+const TERMS = `Body Description: Athletic Build, Cut Up, Developed Lower, Developed Upper, Eyeball Test, High Cut, High-Waisted, Knock-Kneed, Lacks Bulk, Lacks Frame, Lean Frame, Length, Long Arms, Long Levers, Put Together, Sawed Off, Short Arms, Shredded, Stubby.
+Athletic Ability: Drop Weight, Fluid, Rigid, Waist-bender.
+Strength/Explosion: Absorbs Contact, Anchor, Leverage, Play Strength, Roll Hips, Separation, Strains, Torque, Extension, Eyes Up, Forward Lean, Games Recognition, Gap/Duo, Gives Ground, Flying Elbow Release, Mobility.
+Speed: Acceleration, Builds, One-Speed, Heavy Footed, Second Gear, Separation, Short Area Quickness, Short Burst, Short-Stepper.
+Competitiveness: Aggressive, All Out, Alpha, Active Hands, Contact Shy, Attack Mentality, Finish, Flash, High Motor, Hustles, Inconsistent, Intensity, Mean, Mentality, Physical, Takes Plays Off, Tough, Up and Down, Willing.
+Run Blocking: Aggressive, Accelerate Feet, Balanced, Backside Cutoff, Base, Cut, Cutoff, Drops Head, Engage, Explosion, Falls Off, Feet to Reach, Hip Explosion, Initial, Leaner, Maintains Contact, Narrow Base, 2nd Level, Second Effort, Short Pull, Space/Screens, Strike a Blow, Sustain, Wide Base.
+Pass Pro: Anchor/Sit Down, Backpedal Set, Balance, Base, Contact Balance, Crosses Over, Dirty Eyes, Drops Head, Extension, Eyes Up, Forward Lean, Games Recognition, Gap/Duo, Gives Ground, Hand Usage, Horizontal Set, Knee Bend, Lockout, LOS Set, On Skates, On Toes, Punch, Redirect, Vertical Set, Waist-Bender.
+DL Play: A-gap Player, Active Hands, Attack Mentality, Backside Agility, Chase Effort, Closing Burst, Dip Shoulder, Disruptive, Finish at QB, Get Off, POA Strength, Production, Run the Hoop, Separation, Swipe, Swim, First Step, Violence.
+DB Play: Backpedal, Ball in Air, Burst/Close, Deep Ball, Eye Discipline, Hand-Eye, In-Phase, Off-hand Jam, One-hand Jam, Panic, Poise, Run Support, Tackling, Transition.
+QB Play: Set Up/Footwork, Field Vision, Deliver/Release, Arm Strength, Courage, Move/Scramble, Accuracy (Short, Intermediate, Deep), Back Knee (Flex), Behind LOS Throws, Decision Making, Durability, Escapability, Flying Elbow Release, Mobility, Pinpoint Accuracy, Pre-Snap Duties, Pocket Awareness, Pocket Movement, Rhythm, Timing, Vertical Accuracy.
+OL: Explosion/Drive, Balance/Stay on Feet, Lateral Movement, Use Hands, In Line Blocking, Block Backers, Pulling, Block on Move, Pass Blocking.
+DB: Backpedal/Close, Turn Ability, Acceleration, Vision/Reaction, Hands, Man Cover, Zone Cover, Support, Tackle.
+LB: Reactions, Lateral Quicks/COD, Point Strength, Shed/Stay Feet, Tackle, In Line, Range, Blitz, Cover, Hands.
+DL: Explode/Point Strength, Reactions, Shed, Lateral Quicks/COD, Stay on Feet, Acceleration, Pursuit, Tackle, In Line, Pass Rush.
+RB: Judgement, Hands, Quicks/Elude, Break Tackle, Acceleration.
+KS: Quickness, Leg Strength, Accuracy, Consistency, Poise.
+Punter: Hands/Quicks, Leg Strength, Hang Time, Placement.
+LS: Quickness, Accuracy, Block, Cover.`;
+
+async function rewriteEval(rawNotes) {
+  const res = await fetch("/.netlify/functions/generate", {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({
+      model: "claude-sonnet-4-20250514",
+      max_tokens: 1000,
+      messages: [{ role: "user", content: `You are a college football scouting evaluation writer. You take raw, shorthand scouting notes and rewrite them into polished, professional scouting evaluations. You must match the EXACT style shown in the examples below.
+
+CRITICAL STYLE RULES:
+- ALL CAPS for the entire eval
+- Each sentence is a standalone scouting observation stacked together as a paragraph
+- Use em dashes (—) to connect related thoughts within a sentence
+- Use scouting language: "SHOWS", "FLASHES", "DISPLAYS", "POSSESSES", "PROJECTS AS", "LACKS", "DOES NOT", "WILL NEED", "CURRENTLY", "AT THIS STAGE", "ON FILM", "IN PERSON", "AT THE NEXT LEVEL"
+- Describe frame/build first, then athleticism, then position-specific skills, then projection/next steps
+- Be honest and blunt about limitations — don't sugarcoat
+- End with a projection or action item: "GET TO CAMPUS", "GET TO CAMP", "KEEP TRACKING", "CAMP GUY AT THIS STAGE", etc.
+- Match the length and density of the examples (5-10 sentences typically)
+- Do NOT add information that isn't in the raw notes — only clean up and professionalize what's there
+- IMPORTANT: Do NOT add unnecessary hedging words like "some" unless the raw notes specifically say "some." If the notes say "good press tech" the eval should say "SHOWS GOOD PRESS TECHNIQUE" not "SHOWS SOME GOOD PRESS TECHNIQUE." Be decisive and confident in the language — scouts don't hedge.
+
+TERMINOLOGY TO USE WHERE APPLICABLE:
+${TERMS}
+
+HERE ARE REAL EXAMPLES OF RAW NOTES → FINISHED EVALS. MATCH THIS EXACT STYLE:
+
+RAW: unverified 5'10 180 - plays wr and bd. shows good ball skills and tracking ability. has a thicker more filled out frame. has some quickness at the top of the route. shows some fluidity in his hips. not a burner but adequate speed. shows some physicality on defense. willing tackler. has some mym ability. does some good things. would project as a slot. good frame. keep tracking. has good release package.
+EVAL: UNVERIFIED 5'10, 180 ATHLETE WHO PLAYS WR AND DB. THICKER, MORE FILLED-OUT FRAME WITH A GOOD BUILD FOR A SLOT PROJECTION. SHOWS GOOD BALL SKILLS AND TRACKING ABILITY, AND THERE IS SOME QUICKNESS AT THE TOP OF THE ROUTE WITH A GOOD RELEASE PACKAGE. HAS SOME FLUIDITY IN HIS HIPS AND ENOUGH SPEED TO FUNCTION, THOUGH HE DOES NOT LOOK LIKE A TRUE BURNER. ON DEFENSE, SHOWS SOME PHYSICALITY, IS A WILLING TACKLER, AND BRINGS SOME MAKE-YOU-MISS ABILITY IN SPACE. DOES SOME GOOD THINGS ON BOTH SIDES AND HAS A FRAME WORTH CONTINUING TO TRACK, WITH BEST LONG-TERM FIT PROJECTING INSIDE AT SLOT.
+
+RAW: UNVERIFIED 5'10 155. HAS A 10.74 100M TIME. AVERAGE HEIGHT LIGHT. BUT LOOKS LIKE HE CAN GET BIGGER. HAS SOME QUICKNESS OUT THE BREAK - WILL TRIGGER DOWN HILL. LOOKS TO HAVE GOOD FOOTSPEED. NOT AFRAID IN THE RUN GAME. WILL COME UP AND TACKLE AND DEFEAT BLOCKS. SHOWS SOME GOOD PRESS TECH. YOUNG - REALLY LIGHT WOULD DEFINITELY NEED TO ADD WEIGHT. WANNA SEE MORE BALL PRODUCTION. WOULD BE A CAMP GUY AT THIS STAGE
+EVAL: UNVERIFIED 5'10, 155 DB WITH VERIFIED 10.74 100M SPEED. AVERAGE HEIGHT BUT A LIGHT FRAME THAT STILL LOOKS LIKE IT HAS ROOM TO ADD GOOD WEIGHT. SHOWS GOOD FOOT SPEED WITH QUICKNESS OUT OF HIS BREAK AND WILL TRIGGER DOWNHILL. COMPETES IN THE RUN GAME — NOT AFRAID TO COME UP, TACKLE, AND WORK TO DEFEAT BLOCKS. SHOWS SOME GOOD PRESS TECHNIQUE AT THE LINE. YOUNG PLAYER WITH TRAITS BUT CURRENTLY VERY LIGHT AND WILL NEED TO CONTINUE ADDING MASS AND STRENGTH. WOULD LIKE TO SEE MORE BALL PRODUCTION ON FILM. CAMP GUY AT THIS STAGE.
+
+RAW: Verified 6' 191. good frame and good height. has a good built out build. not very explosive. not a blazer - speed is questionable. displays good ball skills and concentration. plays through contact and can make contested catches. not a real dynamic player. not sure if he has enough juice for the wr position at our level.
+EVAL: VERIFIED 6'0, 191 WR WITH GOOD HEIGHT AND A WELL-BUILT FRAME. PHYSICALLY PUT TOGETHER WITH A SOLID, FILLED-OUT BUILD. SHOWS GOOD BALL SKILLS AND CONCENTRATION AND IS COMFORTABLE PLAYING THROUGH CONTACT. ABLE TO MAKE CONTESTED CATCHES AND FINISH IN TRAFFIC. HOWEVER, DOES NOT APPEAR OVERLY EXPLOSIVE AND LONG SPEED IS QUESTIONABLE. NOT A TRUE BLAZER AND LACKS SOME DYNAMIC PLAYMAKING ABILITY. OVERALL SKILL SET AND SPEED PROFILE MAY LIMIT HIS CEILING AT WR AT OUR LEVEL.
+
+RAW: VERIFIED 5'11.5 166 - GOOD FRAME AND HEIGHT. ACCELERATION LOOKS SMOOTH OFF THE LINE. EFFICIENT RELEASE PACKAGE. FLASHES NATURAL HANDS. LOOKS THICKER THAN HIS WEIGHT. HAS GOOD STRENGTH CAN FIGHT THROUGH CONTACT. ISNT A TRUE BURNER. MORE OF A POSSESSION GUY. KNOWS HOW TO RUN ROUTES AND GET OPEN. NOT THE MOST DYNAMIC ATHLETE BUT GOOD ENOUGH. GET TO MINI CAMP AND SEE HOW EXPLOSIVE AND SUDDEN HE IS IN PERSON. GOOD PLAYER
+EVAL: VERIFIED 5'11.5, 166 WR WITH GOOD HEIGHT AND A SOLID FRAME. SHOWS SMOOTH ACCELERATION OFF THE LINE WITH AN EFFICIENT RELEASE PACKAGE. FLASHES NATURAL HANDS AND LOOKS THICKER THAN HIS LISTED WEIGHT. PLAYS WITH GOOD STRENGTH AND CAN FIGHT THROUGH CONTACT. NOT A TRUE BURNER — PROJECTS MORE AS A POSSESSION-TYPE WR. UNDERSTANDS HOW TO RUN ROUTES AND FIND SPACE TO GET OPEN. NOT THE MOST DYNAMIC ATHLETE BUT HAS ENOUGH ABILITY TO BE EFFECTIVE. GET TO MINI CAMP TO SEE HOW EXPLOSIVE AND SUDDEN HE IS IN PERSON. GOOD PLAYER.
+
+RAW: unverified 6'4 175 - looks bigger on tape. has a big frame. he also plays basketball. has the ability to go up and high point the ball. fluid move within his vertical routes down the field. not alot of cod or saq or mym after the catch. more of a possession catcher. he may have the frame to grow and be a big slot or small y. get to campus for camp to see him work in person
+EVAL: UNVERIFIED 6'4 175 WITH A LONG, LEAN FRAME THAT PLAYS BIGGER ON TAPE—CLEAR LENGTH WITH ROOM FOR PHYSICAL DEVELOPMENT. MULTI-SPORT BACKGROUND (BASKETBALL) SHOWS UP IN HIS ABILITY TO ELEVATE AND HIGH-POINT THE FOOTBALL, CONSISTENTLY WINNING IN THE AIR WITH STRONG BALL SKILLS. FLUID STRIDER ON VERTICAL ROUTES WITH THE ABILITY TO COVER GROUND DOWNFIELD, BUT ROUTE TREE IS LIMITED AND LACKS EXPOSURE TO FULL ROUTE DEVELOPMENT. MINIMAL CHANGE OF DIRECTION AND SHORT AREA QUICKNESS ON FILM—DOES NOT SHOW MUCH MAKE-YOU-MISS OR YAC ABILITY. PROJECTS MORE AS A POSSESSION RECEIVER AT THIS STAGE. FRAME SUGGESTS POTENTIAL TO ADD MASS AND TRANSITION INTO A BIG SLOT OR SMALL Y WITH DEVELOPMENT. NEEDS IN-PERSON EVAL TO VERIFY ATHLETICISM, FLUIDITY, AND EXPANDED ROUTE CAPABILITY.
+
+RAW: VERIFIED 5'9 171 - SHORTER PLAYER - GOOD FRAME NOT TO SKINNY. SHOWS SOME EXPLOSION OUT OF HIS BREAKS. SHOWS THE ABILITY TO OPEN HIS HIPS. HAS GOOD DOWNFIELD SPEED TO RUN WITH WRS. WILL TURN HIS HEAD AND PLAY THE BALL. SHOWS GOOD FOOT SPEED AND CAN GET HANDS ON IN PRESS. PLAYS WITH GOOD PHYSICALITY. CAN BE STICKY IN COVERAGE. SHORTER GUY BUT A GOOD PLAYER. GET TO CAMPUS
+EVAL: VERIFIED 5'9, 171 DB WITH A SHORTER STATURE BUT A SOLID, WELL-BUILT FRAME. SHOWS SOME EXPLOSION OUT OF HIS BREAKS AND THE ABILITY TO OPEN HIS HIPS AND RUN. HAS GOOD DOWNFIELD SPEED TO CARRY WRS VERTICALLY. WILL TURN HIS HEAD AND PLAY THE BALL. DISPLAYS GOOD FOOT SPEED AND CAN GET HANDS ON RECEIVERS IN PRESS. PLAYS WITH GOOD PHYSICALITY AND CAN BE STICKY IN COVERAGE. SHORTER PLAYER, BUT A GOOD ONE. GET TO CAMPUS.
+
+NOW REWRITE THESE RAW NOTES IN THE EXACT SAME STYLE:
+
+FORMATTING:
+- First line of response must be ONLY JSON: {"name":"...","position":"...","school":"...","height":"...","weight":"...","year":"...","evalType":"..."}
+- evalType: "High School" or "Transfer Portal" (default "High School")
+- Empty string "" for any info not in the notes
+- Then write the ALL CAPS eval paragraph starting on the next line
+
+Raw notes:
+${rawNotes}` }]
+    })
+  });
+  const data = await res.json();
+  return data.content?.map(b => b.type === "text" ? b.text : "").filter(Boolean).join("\n") || "";
+}
+
+// ═══════════════════════════════════════
+// CONSTANTS
+// ═══════════════════════════════════════
+const RATING_SCALE = [
+  { value: 0, label: "Major Power 5 Offers", color: "#2E86DE", bg: "#0d1f2e" },
+  { value: 1, label: "Offer", color: "#27AE60", bg: "#0f2a12" },
+  { value: 2, label: "Possible Offer", color: "#D4AF37", bg: "#2a2410" },
+  { value: 3, label: "Get to Campus", color: "#E67E22", bg: "#2a1a0d" },
+  { value: 4, label: "Get to Mega Camp", color: "#8E8E8E", bg: "#1a1a1a" },
+  { value: 5, label: "Do Not Recruit", color: "#E74C3C", bg: "#2a0d0d" },
+];
+const POSITIONS = { Offense: ["QB","RB","WR","WRO","WRI","TE","Small Y","OT","OG","C"], Defense: ["DE","DT","NT","OLB","ILB","CB","FS","SS"], "Special Teams": ["K","P","LS","KR/PR"] };
+const mono = "'JetBrains Mono', monospace";
+const inputStyle = { background: "#111", border: "1px solid #2a2a2a", borderRadius: 4, color: "#e0e0e0", padding: "8px 12px", fontSize: 13, fontFamily: mono, width: "100%", outline: "none", boxSizing: "border-box" };
+const labelStyle = { fontSize: 10, color: "#888", textTransform: "uppercase", letterSpacing: 1, marginBottom: 4, fontFamily: mono };
+
+function loadLocal(key, def) { try { return JSON.parse(localStorage.getItem(key)) || def; } catch { return def; } }
+function saveLocal(key, val) { localStorage.setItem(key, JSON.stringify(val)); }
+
+// ═══════════════════════════════════════
+// SUPABASE CLIENT
+// ═══════════════════════════════════════
+const SB_URL = "https://dollnqmkqtftizumvowh.supabase.co";
+const SB_KEY = "sb_publishable_4eU6AmctVBXgFShdzoDQRQ_7c63FwUM";
+function createClient(url, key) {
+  const base = { apikey: key, Authorization: "Bearer " + key, "Content-Type": "application/json", Prefer: "return=representation" };
+  let tok = null, usr = null;
+  function h() { const o = { ...base }; if (tok) o.Authorization = "Bearer " + tok; return o; }
+  async function req(p, opts = {}) {
+    const r = await fetch(url + p, { ...opts, headers: { ...h(), ...(opts.headers || {}) } });
+    if (!r.ok) { const e = await r.json().catch(() => ({})); throw new Error(e.message || r.statusText); }
+    const t = await r.text(); return t ? JSON.parse(t) : null;
+  }
+  return {
+    auth: {
+      async signIn(e, p) { const d = await req("/auth/v1/token?grant_type=password", { method: "POST", body: JSON.stringify({ email: e, password: p }) }); if (d?.access_token) { tok = d.access_token; usr = d.user; } return d; },
+      signOut() { tok = null; usr = null; },
+      getUser() { return usr; },
+      setSession(t, u) { tok = t; usr = u; }
+    },
+    from(table) {
+      let method = "GET", body = null, query = "";
+      const filters = [];
+      const obj = {
+        select(c) { query = "?select=" + (c || "*"); method = "GET"; return obj; },
+        upsert(data) { method = "POST"; body = JSON.stringify(Array.isArray(data) ? data : [data]); return { async execute() { return req("/rest/v1/" + table, { method, body, headers: { Prefer: "return=representation,resolution=merge-duplicates" } }); } }; },
+        delete() { method = "DELETE"; return obj; },
+        eq(c, v) { filters.push(c + "=eq." + v); return obj; },
+        async execute() { let p = "/rest/v1/" + table; const f = filters.join("&"); if (method === "GET") p += query + (f ? (query ? "&" : "?") + f : ""); else p += f ? "?" + f : ""; return req(p, { method, body }); }
+      };
+      return obj;
+    }
+  };
+}
+const supabase = createClient(SB_URL, SB_KEY);
+
+function evalToRow(ev, uid) {
+  return { id: ev.id, user_id: uid, name: ev.name, position: ev.position, eval_type: ev.evalType, school: ev.school, year: ev.year, height: ev.height, weight: ev.weight, rating: ev.rating, body_tags: [], athletic_tags: [], competitive_tags: [], trait_scores: {}, notes: ev.rawNotes || "", strengths: ev.eval || "", weaknesses: "", film: "", eval_date: ev.date, evaluator: "", updated_at: new Date().toISOString() };
+}
+function rowToEval(row) {
+  return { id: row.id, name: row.name, position: row.position, evalType: row.eval_type, school: row.school, year: row.year, height: row.height, weight: row.weight, rating: row.rating, rawNotes: row.notes || "", eval: row.strengths || "", date: row.eval_date };
+}
+
+function RatingBadge({ rating }) {
+  const r = RATING_SCALE.find(s => s.value === rating);
+  if (!r) return <span style={{ color: "#555", fontSize: 11 }}>Unrated</span>;
+  return <span style={{ padding: "3px 8px", fontSize: 10, background: r.bg, color: r.color, border: `1px solid ${r.color}44`, borderRadius: 4, fontWeight: 700, fontFamily: mono, textTransform: "uppercase", whiteSpace: "nowrap" }}>{r.value} — {r.label}</span>;
+}
+
+function CompactRatingPicker({ value, onChange }) {
+  return (
+    <div style={{ display: "grid", gridTemplateColumns: "repeat(6, 1fr)", gap: 4 }}>
+      {RATING_SCALE.map(r => {
+        const on = value === r.value;
+        return <button key={r.value} onClick={() => onChange(on ? null : r.value)} style={{ padding: "8px 2px", background: on ? r.color : "#1a1a1a", border: on ? `2px solid ${r.color}` : "2px solid #222", borderRadius: 4, cursor: "pointer", textAlign: "center" }}>
+          <div style={{ fontSize: 16, fontWeight: 900, color: on ? "#fff" : r.color, fontFamily: mono }}>{r.value}</div>
+          <div style={{ fontSize: 8, color: on ? "#ffffffcc" : "#666", textTransform: "uppercase", marginTop: 2, fontFamily: mono, lineHeight: 1.2 }}>{r.label}</div>
+        </button>;
+      })}
+    </div>
+  );
+}
+
+// ═══════════════════════════════════════
+function App() {
+  const [view, setView] = useState("create");
+  const [evals, setEvals] = useState([]);
+  const [rawNotes, setRawNotes] = useState("");
+  const [rating, setRating] = useState(null);
+  const [generating, setGenerating] = useState(false);
+  const [preview, setPreview] = useState(null);
+  const [playerName, setPlayerName] = useState("");
+  const [playerSchool, setPlayerSchool] = useState("");
+  const [playerYear, setPlayerYear] = useState("");
+  const [playerPos, setPlayerPos] = useState("");
+
+  const [boardPos, setBoardPos] = useState("WR");
+  const [boardTab, setBoardTab] = useState("hs");
+  const [boardHsYear, setBoardHsYear] = useState(null);
+  const [boardOrder, setBoardOrder] = useState({});
+  const [previewId, setPreviewId] = useState(null);
+  const [dragIdx, setDragIdx] = useState(null);
+
+  const [filterPos, setFilterPos] = useState(null);
+  const [filterYear, setFilterYear] = useState(null);
+  const [searchText, setSearchText] = useState("");
+
+  // Cloud sync state
+  const [user, setUser] = useState(null);
+  const [loginPw, setLoginPw] = useState("");
+  const [loginErr, setLoginErr] = useState("");
+  const [loginLoading, setLoginLoading] = useState(false);
+  const [syncing, setSyncing] = useState(false);
+
+  // Check for saved session on load
+  useEffect(() => {
+    // Load local data first (works offline)
+    setEvals(loadLocal("evalpro_evals", []));
+    setBoardOrder(loadLocal("evalpro_board", {}));
+    // Try to restore cloud session
+    try {
+      const s = JSON.parse(localStorage.getItem("evalpro_session"));
+      if (s?.token && s?.user) {
+        supabase.auth.setSession(s.token, s.user);
+        setUser(s.user);
+      }
+    } catch {}
+  }, []);
+
+  // When user connects, load from cloud
+  useEffect(() => { if (user) loadFromCloud(); }, [user]);
+
+  async function loadFromCloud() {
+    setSyncing(true);
+    try {
+      const rows = await supabase.from("evals").select().execute();
+      if (rows && rows.length > 0) {
+        const cloudEvals = rows.map(rowToEval);
+        // Merge: cloud wins, but keep any local-only evals
+        const cloudIds = new Set(cloudEvals.map(e => e.id));
+        const localOnly = evals.filter(e => !cloudIds.has(e.id));
+        const merged = [...cloudEvals, ...localOnly];
+        setEvals(merged);
+        saveLocal("evalpro_evals", merged);
+        // Push any local-only evals to cloud
+        for (const ev of localOnly) {
+          try { await supabase.from("evals").upsert(evalToRow(ev, user.id)).execute(); } catch {}
+        }
+      }
+      const orders = await supabase.from("board_orders").select().execute();
+      if (orders) {
+        const o = {}; orders.forEach(r => { o[r.id] = r.order_list || []; });
+        setBoardOrder(o);
+        saveLocal("evalpro_board", o);
+      }
+    } catch (e) { console.error("Cloud sync error:", e); }
+    setSyncing(false);
+  }
+
+  async function handleLogin() {
+    setLoginErr(""); setLoginLoading(true);
+    try {
+      const d = await supabase.auth.signIn("joshuadrayden20@gmail.com", loginPw);
+      if (d?.user) {
+        setUser(d.user);
+        localStorage.setItem("evalpro_session", JSON.stringify({ token: d.access_token, user: d.user }));
+        setLoginPw("");
+      } else { setLoginErr("Wrong password"); }
+    } catch (e) { setLoginErr(e.message || "Login failed"); }
+    setLoginLoading(false);
+  }
+
+  function persistEvals(newEvals) {
+    setEvals(newEvals);
+    saveLocal("evalpro_evals", newEvals);
+  }
+  function persistBoard(newOrder) {
+    setBoardOrder(newOrder);
+    saveLocal("evalpro_board", newOrder);
+  }
+
+  // Cloud save helpers (fire and forget — local is source of truth)
+  async function cloudSaveEval(ev) {
+    if (!user) return;
+    try { await supabase.from("evals").upsert(evalToRow(ev, user.id)).execute(); } catch (e) { console.error("Cloud save error:", e); }
+  }
+  async function cloudDeleteEval(id) {
+    if (!user) return;
+    try { await supabase.from("evals").delete().eq("id", id).execute(); } catch {}
+  }
+  async function cloudSaveBoardOrder(key, list) {
+    if (!user) return;
+    try { await supabase.from("board_orders").upsert({ id: key, user_id: user.id, order_list: list, updated_at: new Date().toISOString() }).execute(); } catch {}
+  }
+
+  async function generateEval() {
+    if (!rawNotes.trim()) return;
+    setGenerating(true);
+    try {
+      const result = await rewriteEval(rawNotes);
+      const lines = result.split("\n");
+      let meta = { name: "", position: "", school: "", year: "", height: "", weight: "", evalType: "High School" };
+      let evalText = result;
+      for (let i = 0; i < lines.length; i++) {
+        if (lines[i].trim().startsWith("{")) {
+          try { meta = JSON.parse(lines[i].trim()); evalText = lines.slice(i + 1).join("\n").trim(); break; } catch {}
+        }
+      }
+      setPreview({ id: Date.now().toString(36) + Math.random().toString(36).slice(2, 6), ...meta, name: playerName || meta.name, position: playerPos || meta.position, school: playerSchool || meta.school, year: playerYear || meta.year, eval: evalText, rawNotes, rating, date: new Date().toISOString().slice(0, 10) });
+      setView("preview");
+    } catch (e) { console.error(e); alert("Error generating eval: " + e.message); }
+    setGenerating(false);
+  }
+
+  function saveEval() {
+    if (!preview) return;
+    const ev = { ...preview, rating };
+    persistEvals([ev, ...evals]);
+    cloudSaveEval(ev);
+    setPreview(null); setRawNotes(""); setRating(null); setPlayerName(""); setPlayerSchool(""); setPlayerYear(""); setPlayerPos(""); setView("evals");
+  }
+
+  function deleteEval(id) {
+    persistEvals(evals.filter(e => e.id !== id));
+    cloudDeleteEval(id);
+  }
+
+  const allYears = [...new Set(evals.map(e => e.year).filter(Boolean))].sort();
+
+  // ═══════ NAV ═══════
+  function NavBar() {
+    return (
+      <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: 24, borderBottom: "2px solid #D4AF37", paddingBottom: 16, flexWrap: "wrap", gap: 10 }}>
+        <div>
+          <div style={{ fontSize: 10, color: "#D4AF37", letterSpacing: 4, fontFamily: mono, textTransform: "uppercase", marginBottom: 4 }}>Scouting Intelligence</div>
+          <h1 style={{ margin: 0, fontSize: 28, fontWeight: 800, color: "#fff", letterSpacing: -0.5 }}>EVAL<span style={{ color: "#D4AF37" }}>PRO</span></h1>
+        </div>
+        <div style={{ display: "flex", gap: 4, alignItems: "center", flexWrap: "wrap" }}>
+          {[{ key: "create", label: "CREATE" }, { key: "evals", label: "EVALS" }, { key: "board", label: "BOARD" }].map(t =>
+            <button key={t.key} onClick={() => setView(t.key)} style={{ padding: "6px 14px", fontSize: 10, fontFamily: mono, letterSpacing: 1, background: view === t.key ? "#D4AF3722" : "transparent", border: view === t.key ? "1px solid #D4AF37" : "1px solid #333", borderRadius: 4, color: view === t.key ? "#D4AF37" : "#888", cursor: "pointer", fontWeight: view === t.key ? 700 : 400 }}>{t.label}</button>
+          )}
+          {user ? (
+            <span style={{ fontSize: 9, color: "#27AE60", fontFamily: mono, padding: "4px 8px", background: "#27AE6015", borderRadius: 4, border: "1px solid #27AE6033" }}>{syncing ? "syncing..." : "☁ cloud"}</span>
+          ) : (
+            <span style={{ fontSize: 9, color: "#888", fontFamily: mono, padding: "4px 8px", background: "#1a1a1a", borderRadius: 4, border: "1px solid #333", cursor: "pointer" }} onClick={() => setView("login")}>☁ connect</span>
+          )}
+        </div>
+      </div>
+    );
+  }
+
+  // ═══════ LOGIN (one-time) ═══════
+  if (view === "login") {
+    return (
+      <div style={{ background: "#0a0a0a", minHeight: "100vh", color: "#e0e0e0" }}>
+        <div style={{ maxWidth: 400, margin: "0 auto", padding: "80px 16px" }}>
+          <div style={{ textAlign: "center", marginBottom: 24 }}>
+            <div style={{ fontSize: 10, color: "#D4AF37", letterSpacing: 4, fontFamily: mono, textTransform: "uppercase", marginBottom: 4 }}>Cloud Sync</div>
+            <h2 style={{ fontSize: 20, fontWeight: 800, color: "#fff" }}>Connect to Cloud</h2>
+            <p style={{ fontSize: 11, color: "#666", marginTop: 8 }}>One-time login. Your evals will sync across all devices.</p>
+          </div>
+          <div style={{ background: "#111", borderRadius: 8, padding: 24, border: "1px solid #1a1a1a" }}>
+            <div style={{ fontSize: 11, color: "#888", fontFamily: mono, marginBottom: 12 }}>joshuadrayden20@gmail.com</div>
+            <div style={labelStyle}>Password</div>
+            <input type="password" value={loginPw} onChange={e => setLoginPw(e.target.value)} style={inputStyle} placeholder="Your Supabase password" onKeyDown={e => { if (e.key === "Enter") handleLogin(); }} />
+            {loginErr && <div style={{ fontSize: 11, color: "#E74C3C", fontFamily: mono, marginTop: 8 }}>{loginErr}</div>}
+            <div style={{ display: "flex", gap: 8, marginTop: 16 }}>
+              <button onClick={() => setView("create")} style={{ padding: "10px 20px", background: "transparent", border: "1px solid #333", borderRadius: 4, color: "#888", fontSize: 12, cursor: "pointer", fontFamily: mono }}>SKIP</button>
+              <button onClick={handleLogin} disabled={loginLoading || !loginPw} style={{ padding: "10px 20px", background: (loginLoading || !loginPw) ? "#333" : "#D4AF37", border: "none", borderRadius: 4, color: (loginLoading || !loginPw) ? "#666" : "#000", fontSize: 12, fontWeight: 700, cursor: (loginLoading || !loginPw) ? "default" : "pointer", fontFamily: mono }}>{loginLoading ? "..." : "CONNECT"}</button>
+            </div>
+          </div>
+        </div>
+      </div>
+    );
+  }
+
+  // ═══════ CREATE ═══════
+  if (view === "create") {
+    return (
+      <div style={{ background: "#0a0a0a", minHeight: "100vh", color: "#e0e0e0" }}>
+        <div style={{ maxWidth: 700, margin: "0 auto", padding: "20px 16px" }}>
+          <NavBar />
+          <h2 style={{ margin: "0 0 8px", fontSize: 20, fontWeight: 800, color: "#fff" }}>Create Eval</h2>
+          <p style={{ fontSize: 12, color: "#666", marginBottom: 16, lineHeight: 1.5 }}>Fill in the player info, paste your raw notes, pick a grade, and hit Create Eval.</p>
+          <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr 1fr 1fr", gap: 8, marginBottom: 12 }}>
+            <div><div style={labelStyle}>Name</div><input value={playerName} onChange={e => setPlayerName(e.target.value)} style={inputStyle} placeholder="Player Name" /></div>
+            <div><div style={labelStyle}>Position</div><select value={playerPos} onChange={e => setPlayerPos(e.target.value)} style={inputStyle}><option value="">—</option>{Object.entries(POSITIONS).map(([g, ps]) => <optgroup key={g} label={g}>{ps.map(p => <option key={p} value={p}>{p}</option>)}</optgroup>)}</select></div>
+            <div><div style={labelStyle}>School</div><input value={playerSchool} onChange={e => setPlayerSchool(e.target.value)} style={inputStyle} placeholder="School / Team" /></div>
+            <div><div style={labelStyle}>Year</div><input value={playerYear} onChange={e => setPlayerYear(e.target.value)} style={inputStyle} placeholder="2026" /></div>
+          </div>
+          <div style={labelStyle}>Raw Notes</div>
+          <textarea value={rawNotes} onChange={e => setRawNotes(e.target.value)} placeholder={"WR - 6'1 185\nSmooth route runner, good separation at the top\nStrong hands, can high point the ball\nFluid athlete, needs to add some bulk\nFlashes but inconsistent effort..."} style={{ ...inputStyle, minHeight: 200, resize: "vertical", lineHeight: 1.6 }} />
+          <div style={{ marginTop: 14, marginBottom: 10 }}>
+            <div style={labelStyle}>Grade</div>
+            <CompactRatingPicker value={rating} onChange={setRating} />
+          </div>
+          <button onClick={generateEval} disabled={!rawNotes.trim() || generating} style={{ padding: "12px 28px", background: (!rawNotes.trim() || generating) ? "#333" : "#D4AF37", border: "none", borderRadius: 4, color: (!rawNotes.trim() || generating) ? "#666" : "#000", fontSize: 14, fontWeight: 700, cursor: (!rawNotes.trim() || generating) ? "default" : "pointer", fontFamily: mono, marginTop: 4 }}>
+            {generating ? "GENERATING..." : "CREATE EVAL"}
+          </button>
+        </div>
+      </div>
+    );
+  }
+
+  // ═══════ PREVIEW ═══════
+  if (view === "preview" && preview) {
+    const r = RATING_SCALE.find(s => s.value === rating);
+    return (
+      <div style={{ background: "#0a0a0a", minHeight: "100vh", color: "#e0e0e0" }}>
+        <div style={{ maxWidth: 700, margin: "0 auto", padding: "20px 16px" }}>
+          <NavBar />
+          <div style={{ background: "#111", border: "1px solid #1a1a1a", borderRadius: 8, padding: 24 }}>
+            <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: 16, flexWrap: "wrap", gap: 8 }}>
+              <div>
+                <div style={{ fontSize: 22, fontWeight: 800, color: "#fff" }}>{preview.name || "Player"}</div>
+                <div style={{ fontSize: 11, color: "#888", fontFamily: mono, marginTop: 4 }}>{[preview.position, preview.school, preview.year, preview.height, preview.weight ? preview.weight + "lbs" : ""].filter(Boolean).join(" · ")}</div>
+              </div>
+              {r && <div style={{ padding: "6px 14px", background: r.bg, color: r.color, border: `1px solid ${r.color}44`, borderRadius: 4, fontWeight: 700, fontFamily: mono, fontSize: 12 }}>{r.value} — {r.label}</div>}
+            </div>
+
+            <div style={{ fontSize: 9, color: "#D4AF37", textTransform: "uppercase", letterSpacing: 2, fontFamily: mono, marginBottom: 8 }}>Scouting Evaluation</div>
+            <textarea value={preview.eval} onChange={e => setPreview({ ...preview, eval: e.target.value })} style={{ ...inputStyle, minHeight: 140, resize: "vertical", lineHeight: 1.7, fontSize: 14, background: "#0a0a0a", border: "1px solid #222" }} />
+
+            <div style={{ fontSize: 9, color: "#555", textTransform: "uppercase", letterSpacing: 2, fontFamily: mono, marginTop: 16, marginBottom: 8 }}>Your Raw Notes</div>
+            <div style={{ fontSize: 11, color: "#666", lineHeight: 1.5, fontFamily: mono, background: "#0a0a0a", padding: 12, borderRadius: 4, border: "1px solid #1a1a1a", whiteSpace: "pre-wrap" }}>{preview.rawNotes}</div>
+
+            <div style={{ marginTop: 16, marginBottom: 10 }}>
+              <div style={labelStyle}>Grade</div>
+              <CompactRatingPicker value={rating} onChange={setRating} />
+            </div>
+
+            <div style={{ display: "flex", gap: 10, marginTop: 20, flexWrap: "wrap" }}>
+              <button onClick={() => { setView("create"); setPreview(null); }} style={{ padding: "10px 20px", background: "transparent", border: "1px solid #333", borderRadius: 4, color: "#888", fontSize: 12, cursor: "pointer", fontFamily: mono }}>← EDIT NOTES</button>
+              <button onClick={() => { setGenerating(true); rewriteEval(rawNotes).then(result => { const lines = result.split("\n"); let evalText = result; for (let i = 0; i < lines.length; i++) { if (lines[i].trim().startsWith("{")) { try { JSON.parse(lines[i].trim()); evalText = lines.slice(i + 1).join("\n").trim(); break; } catch {} } } setPreview({ ...preview, eval: evalText }); setGenerating(false); }).catch(() => setGenerating(false)); }} disabled={generating} style={{ padding: "10px 20px", background: "transparent", border: "1px solid #D4AF37", borderRadius: 4, color: "#D4AF37", fontSize: 12, cursor: generating ? "default" : "pointer", fontFamily: mono }}>{generating ? "..." : "REGENERATE"}</button>
+              <div style={{ flex: 1 }} />
+              <button onClick={saveEval} style={{ padding: "10px 28px", background: "#D4AF37", border: "none", borderRadius: 4, color: "#000", fontSize: 13, fontWeight: 700, cursor: "pointer", fontFamily: mono }}>SAVE EVAL</button>
+            </div>
+          </div>
+        </div>
+      </div>
+    );
+  }
+
+  // ═══════ EVALS ═══════
+  if (view === "evals") {
+    const filtered = evals.filter(e => {
+      if (filterPos && e.position !== filterPos) return false;
+      if (filterYear && e.year !== filterYear) return false;
+      if (searchText && !e.name.toLowerCase().includes(searchText.toLowerCase()) && !(e.school || "").toLowerCase().includes(searchText.toLowerCase())) return false;
+      return true;
+    });
+    return (
+      <div style={{ background: "#0a0a0a", minHeight: "100vh", color: "#e0e0e0" }}>
+        <div style={{ maxWidth: 800, margin: "0 auto", padding: "20px 16px" }}>
+          <NavBar />
+          <div style={{ display: "flex", gap: 6, marginBottom: 16, flexWrap: "wrap" }}>
+            <input value={searchText} onChange={e => setSearchText(e.target.value)} placeholder="Search..." style={{ ...inputStyle, maxWidth: 160, fontSize: 11 }} />
+            <select value={filterPos || ""} onChange={e => setFilterPos(e.target.value || null)} style={{ ...inputStyle, maxWidth: 90, fontSize: 11 }}><option value="">All Pos</option>{Object.entries(POSITIONS).map(([g, ps]) => <optgroup key={g} label={g}>{ps.map(p => <option key={p} value={p}>{p}</option>)}</optgroup>)}</select>
+            <select value={filterYear || ""} onChange={e => setFilterYear(e.target.value || null)} style={{ ...inputStyle, maxWidth: 100, fontSize: 11 }}><option value="">All Years</option>{allYears.map(y => <option key={y} value={y}>{y}</option>)}</select>
+          </div>
+          {filtered.length === 0 ? (
+            <div style={{ textAlign: "center", padding: 60, color: "#444" }}><div style={{ fontSize: 40, marginBottom: 12 }}>🏈</div><div style={{ fontSize: 14 }}>{evals.length === 0 ? "No evals yet — go create one" : "No matches"}</div></div>
+          ) : (
+            <div style={{ display: "flex", flexDirection: "column", gap: 8 }}>
+              {filtered.map(ev => {
+                const r = RATING_SCALE.find(s => s.value === ev.rating);
+                return (
+                  <div key={ev.id} style={{ background: "#111", border: "1px solid #1a1a1a", borderRadius: 6, padding: 16 }}>
+                    <div style={{ display: "flex", alignItems: "center", gap: 10, marginBottom: 10 }}>
+                      <div style={{ width: 36, height: 36, borderRadius: 4, background: "#1a1a1a", display: "flex", alignItems: "center", justifyContent: "center", fontWeight: 800, fontSize: 12, color: "#D4AF37", fontFamily: mono, flexShrink: 0 }}>{ev.position}</div>
+                      <div style={{ flex: 1 }}>
+                        <div style={{ fontWeight: 700, fontSize: 15, color: "#fff" }}>{ev.name}</div>
+                        <div style={{ fontSize: 10, color: "#666", fontFamily: mono }}>{[ev.school, ev.year, ev.height, ev.weight ? ev.weight + "lbs" : ""].filter(Boolean).join(" · ")}</div>
+                      </div>
+                      <RatingBadge rating={ev.rating} />
+                      <button onClick={() => { if (confirm("Delete?")) deleteEval(ev.id); }} style={{ width: 28, height: 28, background: "transparent", border: "1px solid #222", borderRadius: 4, color: "#F4433688", cursor: "pointer", fontSize: 12 }}>✕</button>
+                    </div>
+                    <div style={{ fontSize: 13, color: "#ccc", lineHeight: 1.6 }}>{ev.eval}</div>
+                  </div>
+                );
+              })}
+            </div>
+          )}
+        </div>
+      </div>
+    );
+  }
+
+  // ═══════ BOARD ═══════
+  if (view === "board") {
+    const BP = ["WR", "WRO", "WRI", "Small Y", "CB"];
+    const pos = boardPos || "WR";
+    const posEvals = evals.filter(e => e.position === pos);
+    const hsEvals = posEvals.filter(e => e.evalType === "High School");
+    const portalEvals = posEvals.filter(e => e.evalType === "Transfer Portal");
+    const hsYears = [...new Set(hsEvals.map(e => e.year).filter(Boolean))].sort();
+
+    function getOrdered(bk, src) {
+      const saved = boardOrder[bk] || [];
+      const ids = new Set(src.map(e => e.id));
+      const ord = saved.filter(id => ids.has(id));
+      const s = new Set(ord);
+      src.forEach(ev => { if (!s.has(ev.id)) ord.push(ev.id); });
+      return ord;
+    }
+    function reorder(bk, from, to) {
+      const src = bk.includes("portal") ? portalEvals : hsEvals.filter(e => e.year === bk.split("-")[1]);
+      const list = getOrdered(bk, src);
+      const [item] = list.splice(from, 1); list.splice(to, 0, item);
+      persistBoard({ ...boardOrder, [bk]: list });
+      cloudSaveBoardOrder(bk, list);
+    }
+    const pEval = evals.find(e => e.id === previewId);
+
+    function BoardList({ boardKey, sourceEvals, title }) {
+      const ids = getOrdered(boardKey, sourceEvals);
+      const ordered = ids.map(id => sourceEvals.find(e => e.id === id)).filter(Boolean);
+      return (
+        <div style={{ marginBottom: 24 }}>
+          <div style={{ display: "flex", alignItems: "center", gap: 8, marginBottom: 8 }}><div style={{ fontSize: 13, fontWeight: 800, color: "#fff", fontFamily: mono }}>{title}</div><span style={{ fontSize: 10, color: "#555", fontFamily: mono }}>{ordered.length}</span></div>
+          {ordered.length === 0 ? <div style={{ background: "#111", border: "1px dashed #222", borderRadius: 4, padding: 20, textAlign: "center", color: "#333", fontSize: 11, fontFamily: mono }}>No {pos}s yet</div> : (
+            <div style={{ display: "flex", flexDirection: "column", gap: 3 }}>
+              {ordered.map((ev, idx) => {
+                const r = RATING_SCALE.find(s => s.value === ev.rating);
+                const drag = dragIdx === idx;
+                return (
+                  <div key={ev.id} draggable onDragStart={() => setDragIdx(idx)} onDragOver={e => e.preventDefault()} onDrop={() => { if (dragIdx !== null && dragIdx !== idx) reorder(boardKey, dragIdx, idx); setDragIdx(null); }} onDragEnd={() => setDragIdx(null)}
+                    style={{ background: drag ? "#1a1a1a" : "#111", border: `1px solid ${drag ? "#D4AF37" : "#1a1a1a"}`, borderRadius: 4, padding: "8px 12px", display: "flex", alignItems: "center", gap: 10, cursor: "grab", opacity: drag ? 0.5 : 1 }}>
+                    <div style={{ width: 28, textAlign: "center", fontSize: 14, fontWeight: 900, color: "#555", fontFamily: mono }}>{idx + 1}</div>
+                    <div style={{ width: 10, height: 10, borderRadius: "50%", background: r ? r.color : "#333", flexShrink: 0 }} />
+                    <div style={{ flex: 1, minWidth: 0, cursor: "pointer" }} onClick={() => setPreviewId(ev.id)}>
+                      <div style={{ fontWeight: 700, fontSize: 13, color: "#fff", whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis" }}>{ev.name}</div>
+                      <div style={{ fontSize: 9, color: "#666", fontFamily: mono }}>{[ev.school, ev.year].filter(Boolean).join(" · ")}</div>
+                    </div>
+                    {r && <div style={{ padding: "3px 8px", fontSize: 9, background: r.bg, color: r.color, border: `1px solid ${r.color}44`, borderRadius: 3, fontWeight: 700, fontFamily: mono, flexShrink: 0 }}>{r.value}</div>}
+                  </div>
+                );
+              })}
+            </div>
+          )}
+        </div>
+      );
+    }
+
+    return (
+      <div style={{ background: "#0a0a0a", minHeight: "100vh", color: "#e0e0e0" }}>
+        <div style={{ maxWidth: 900, margin: "0 auto", padding: "20px 16px" }}>
+          <NavBar />
+          <div style={{ display: "flex", gap: 6, marginBottom: 16, alignItems: "center", flexWrap: "wrap" }}>
+            {BP.map(p => <button key={p} onClick={() => { setBoardPos(p); setPreviewId(null); }} style={{ padding: "8px 20px", fontSize: 14, fontWeight: 800, fontFamily: mono, background: pos === p ? "#D4AF3722" : "#111", border: pos === p ? "2px solid #D4AF37" : "2px solid #222", borderRadius: 4, color: pos === p ? "#D4AF37" : "#666", cursor: "pointer", letterSpacing: 2 }}>{p}</button>)}
+            <div style={{ flex: 1 }} />
+            <button onClick={() => setBoardTab("hs")} style={{ padding: "6px 14px", fontSize: 10, fontFamily: mono, background: boardTab === "hs" ? "#27AE6022" : "transparent", border: boardTab === "hs" ? "1px solid #27AE60" : "1px solid #333", borderRadius: 4, color: boardTab === "hs" ? "#27AE60" : "#888", cursor: "pointer", fontWeight: boardTab === "hs" ? 700 : 400 }}>HIGH SCHOOL</button>
+            <button onClick={() => setBoardTab("portal")} style={{ padding: "6px 14px", fontSize: 10, fontFamily: mono, background: boardTab === "portal" ? "#2E86DE22" : "transparent", border: boardTab === "portal" ? "1px solid #2E86DE" : "1px solid #333", borderRadius: 4, color: boardTab === "portal" ? "#2E86DE" : "#888", cursor: "pointer", fontWeight: boardTab === "portal" ? 700 : 400 }}>TRANSFER PORTAL</button>
+            {boardTab === "hs" && <select value={boardHsYear || ""} onChange={e => setBoardHsYear(e.target.value || null)} style={{ ...inputStyle, maxWidth: 110, fontSize: 10, padding: "6px 10px" }}><option value="">All Years</option>{hsYears.map(y => <option key={y} value={y}>{y}</option>)}</select>}
+          </div>
+          <div style={{ display: "flex", gap: 16 }}>
+            <div style={{ flex: 1, minWidth: 0 }}>
+              {boardTab === "hs" ? (
+                hsYears.length === 0 ? <div style={{ textAlign: "center", padding: 60, color: "#444", fontFamily: mono, fontSize: 14 }}>No HS {pos} evals yet</div>
+                  : (boardHsYear ? hsYears.filter(y => y === boardHsYear) : hsYears).map(year =>
+                    <BoardList key={year} boardKey={`${pos}-${year}-hs`} sourceEvals={hsEvals.filter(e => e.year === year)} title={`Class of ${year}`} />
+                  )
+              ) : <BoardList boardKey={`${pos}-portal`} sourceEvals={portalEvals} title={`${pos} Transfer Portal Board`} />}
+            </div>
+            {pEval && (
+              <div style={{ width: 320, flexShrink: 0, background: "#111", border: "1px solid #1a1a1a", borderRadius: 6, padding: 16, position: "sticky", top: 20, maxHeight: "calc(100vh - 40px)", overflowY: "auto" }}>
+                <div style={{ display: "flex", justifyContent: "space-between", marginBottom: 12 }}><span style={{ fontSize: 9, color: "#555", textTransform: "uppercase", letterSpacing: 1, fontFamily: mono }}>Preview</span><button onClick={() => setPreviewId(null)} style={{ background: "transparent", border: "none", color: "#555", cursor: "pointer", fontSize: 14 }}>✕</button></div>
+                <div style={{ fontSize: 18, fontWeight: 800, color: "#fff", marginBottom: 4 }}>{pEval.name}</div>
+                <div style={{ fontSize: 10, color: "#888", fontFamily: mono, marginBottom: 8 }}>{[pEval.position, pEval.school, pEval.year, pEval.height, pEval.weight ? pEval.weight + "lbs" : ""].filter(Boolean).join(" · ")}</div>
+                <div style={{ marginBottom: 12 }}><RatingBadge rating={pEval.rating} /></div>
+                <div style={{ fontSize: 9, color: "#D4AF37", textTransform: "uppercase", letterSpacing: 2, fontFamily: mono, marginBottom: 6 }}>Evaluation</div>
+                <div style={{ fontSize: 13, color: "#ccc", lineHeight: 1.6 }}>{pEval.eval}</div>
+              </div>
+            )}
+          </div>
+        </div>
+      </div>
+    );
+  }
+
+  return null;
+}
+
+ReactDOM.createRoot(document.getElementById('root')).render(React.createElement(App));
+  </script>
+</body>
+</html>
