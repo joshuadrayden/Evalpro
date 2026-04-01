@@ -141,6 +141,7 @@ function createClient(url, key) {
   }
   return {
     auth: {
+      async signUp(e, p) { const d = await req("/auth/v1/signup", { method: "POST", body: JSON.stringify({ email: e, password: p }) }); if (d?.access_token) { tok = d.access_token; usr = d.user; } return d; },
       async signIn(e, p) { const d = await req("/auth/v1/token?grant_type=password", { method: "POST", body: JSON.stringify({ email: e, password: p }) }); if (d?.access_token) { tok = d.access_token; usr = d.user; } return d; },
       signOut() { tok = null; usr = null; },
       getUser() { return usr; },
@@ -191,7 +192,7 @@ function CompactRatingPicker({ value, onChange }) {
 
 // ═══════════════════════════════════════
 function App() {
-  const [view, setView] = useState("create");
+  const [view, setView] = useState("login");
   const [evals, setEvals] = useState([]);
   const [rawNotes, setRawNotes] = useState("");
   const [rating, setRating] = useState(null);
@@ -215,27 +216,27 @@ function App() {
 
   // Cloud sync state
   const [user, setUser] = useState(null);
+  const [loginEmail, setLoginEmail] = useState("");
   const [loginPw, setLoginPw] = useState("");
   const [loginErr, setLoginErr] = useState("");
   const [loginLoading, setLoginLoading] = useState(false);
+  const [authView, setAuthView] = useState("login");
   const [syncing, setSyncing] = useState(false);
 
   // Check for saved session on load
   useEffect(() => {
-    // Load local data first (works offline)
     setEvals(loadLocal("evalpro_evals", []));
     setBoardOrder(loadLocal("evalpro_board", {}));
-    // Try to restore cloud session
     try {
       const s = JSON.parse(localStorage.getItem("evalpro_session"));
       if (s?.token && s?.user) {
         supabase.auth.setSession(s.token, s.user);
         setUser(s.user);
+        setView("create");
       }
     } catch {}
   }, []);
 
-  // When user connects, load from cloud
   useEffect(() => { if (user) loadFromCloud(); }, [user]);
 
   async function loadFromCloud() {
@@ -244,13 +245,11 @@ function App() {
       const rows = await supabase.from("evals").select().execute();
       if (rows && rows.length > 0) {
         const cloudEvals = rows.map(rowToEval);
-        // Merge: cloud wins, but keep any local-only evals
         const cloudIds = new Set(cloudEvals.map(e => e.id));
         const localOnly = evals.filter(e => !cloudIds.has(e.id));
         const merged = [...cloudEvals, ...localOnly];
         setEvals(merged);
         saveLocal("evalpro_evals", merged);
-        // Push any local-only evals to cloud
         for (const ev of localOnly) {
           try { await supabase.from("evals").upsert(evalToRow(ev, user.id)).execute(); } catch {}
         }
@@ -265,17 +264,38 @@ function App() {
     setSyncing(false);
   }
 
-  async function handleLogin() {
+  async function handleAuth() {
     setLoginErr(""); setLoginLoading(true);
     try {
-      const d = await supabase.auth.signIn("joshuadrayden20@gmail.com", loginPw);
-      if (d?.user) {
+      let d;
+      if (authView === "signup") {
+        d = await supabase.auth.signUp(loginEmail, loginPw);
+        if (d?.user && !d?.access_token) {
+          setLoginErr("Check your email to confirm, then sign in.");
+          setLoginLoading(false);
+          return;
+        }
+      } else {
+        d = await supabase.auth.signIn(loginEmail, loginPw);
+      }
+      if (d?.user && d?.access_token) {
         setUser(d.user);
         localStorage.setItem("evalpro_session", JSON.stringify({ token: d.access_token, user: d.user }));
-        setLoginPw("");
-      } else { setLoginErr("Wrong password"); }
+        setLoginEmail(""); setLoginPw("");
+        setView("create");
+      } else {
+        setLoginErr("Failed. Check your credentials.");
+      }
     } catch (e) { setLoginErr(e.message || "Login failed"); }
     setLoginLoading(false);
+  }
+
+  function signOut() {
+    supabase.auth.signOut();
+    setUser(null); setEvals([]); setBoardOrder({});
+    localStorage.removeItem("evalpro_session");
+    saveLocal("evalpro_evals", []);
+    saveLocal("evalpro_board", {});
   }
 
   function persistEvals(newEvals) {
@@ -347,9 +367,10 @@ function App() {
           {[{ key: "create", label: "CREATE" }, { key: "evals", label: "EVALS" }, { key: "board", label: "BOARD" }].map(t =>
             <button key={t.key} onClick={() => setView(t.key)} style={{ padding: "6px 14px", fontSize: 10, fontFamily: mono, letterSpacing: 1, background: view === t.key ? "#D4AF3722" : "transparent", border: view === t.key ? "1px solid #D4AF37" : "1px solid #333", borderRadius: 4, color: view === t.key ? "#D4AF37" : "#888", cursor: "pointer", fontWeight: view === t.key ? 700 : 400 }}>{t.label}</button>
           )}
-          {user ? (
+          {user ? (<>
             <span style={{ fontSize: 9, color: "#27AE60", fontFamily: mono, padding: "4px 8px", background: "#27AE6015", borderRadius: 4, border: "1px solid #27AE6033" }}>{syncing ? "syncing..." : "☁ cloud"}</span>
-          ) : (
+            <button onClick={signOut} style={{ padding: "4px 10px", background: "transparent", border: "1px solid #333", borderRadius: 4, color: "#555", fontSize: 9, cursor: "pointer", fontFamily: mono }}>SIGN OUT</button>
+          </>) : (
             <span style={{ fontSize: 9, color: "#888", fontFamily: mono, padding: "4px 8px", background: "#1a1a1a", borderRadius: 4, border: "1px solid #333", cursor: "pointer" }} onClick={() => setView("login")}>☁ connect</span>
           )}
         </div>
@@ -357,25 +378,46 @@ function App() {
     );
   }
 
-  // ═══════ LOGIN (one-time) ═══════
+  // ═══════ AUTH SCREEN ═══════
+  if (!user && view !== "create" && view !== "evals" && view !== "board" && view !== "preview") {
+    return (
+      <div style={{ background: "#0a0a0a", minHeight: "100vh", display: "flex", alignItems: "center", justifyContent: "center" }}>
+        <div style={{ width: 360, padding: 32, background: "#111", borderRadius: 8, border: "1px solid #1a1a1a" }}>
+          <div style={{ textAlign: "center", marginBottom: 28 }}>
+            <div style={{ fontSize: 10, color: "#D4AF37", letterSpacing: 4, fontFamily: mono, textTransform: "uppercase", marginBottom: 4 }}>Scouting Intelligence</div>
+            <h1 style={{ margin: 0, fontSize: 32, fontWeight: 800, color: "#fff" }}>EVAL<span style={{ color: "#D4AF37" }}>PRO</span></h1>
+          </div>
+          <div style={{ display: "flex", marginBottom: 20, borderRadius: 4, overflow: "hidden", border: "1px solid #222" }}>
+            {["login", "signup"].map(v => <button key={v} onClick={() => { setAuthView(v); setLoginErr(""); }} style={{ flex: 1, padding: 8, background: authView === v ? "#D4AF3722" : "#0a0a0a", border: "none", color: authView === v ? "#D4AF37" : "#666", fontSize: 11, fontWeight: 700, cursor: "pointer", fontFamily: mono }}>{v === "login" ? "SIGN IN" : "SIGN UP"}</button>)}
+          </div>
+          <div style={{ display: "flex", flexDirection: "column", gap: 12 }}>
+            <div><div style={labelStyle}>Email</div><input type="email" value={loginEmail} onChange={e => setLoginEmail(e.target.value)} style={inputStyle} placeholder="coach@school.edu" /></div>
+            <div><div style={labelStyle}>Password</div><input type="password" value={loginPw} onChange={e => setLoginPw(e.target.value)} style={inputStyle} placeholder="Min 6 characters" onKeyDown={e => { if (e.key === "Enter") handleAuth(); }} /></div>
+            {loginErr && <div style={{ fontSize: 11, color: loginErr.includes("confirm") || loginErr.includes("Check") ? "#D4AF37" : "#E74C3C", fontFamily: mono, padding: 8, background: "#1a1a1a", borderRadius: 4 }}>{loginErr}</div>}
+            <button onClick={handleAuth} disabled={loginLoading || !loginEmail || !loginPw} style={{ padding: 12, background: (loginLoading || !loginEmail || !loginPw) ? "#333" : "#D4AF37", border: "none", borderRadius: 4, color: (loginLoading || !loginEmail || !loginPw) ? "#666" : "#000", fontSize: 13, fontWeight: 700, cursor: (loginLoading || !loginEmail || !loginPw) ? "default" : "pointer", fontFamily: mono }}>{loginLoading ? "..." : authView === "signup" ? "CREATE ACCOUNT" : "SIGN IN"}</button>
+          </div>
+        </div>
+      </div>
+    );
+  }
+
+  // Redirect to login if not signed in
   if (view === "login") {
     return (
-      <div style={{ background: "#0a0a0a", minHeight: "100vh", color: "#e0e0e0" }}>
-        <div style={{ maxWidth: 400, margin: "0 auto", padding: "80px 16px" }}>
-          <div style={{ textAlign: "center", marginBottom: 24 }}>
-            <div style={{ fontSize: 10, color: "#D4AF37", letterSpacing: 4, fontFamily: mono, textTransform: "uppercase", marginBottom: 4 }}>Cloud Sync</div>
-            <h2 style={{ fontSize: 20, fontWeight: 800, color: "#fff" }}>Connect to Cloud</h2>
-            <p style={{ fontSize: 11, color: "#666", marginTop: 8 }}>One-time login. Your evals will sync across all devices.</p>
+      <div style={{ background: "#0a0a0a", minHeight: "100vh", display: "flex", alignItems: "center", justifyContent: "center" }}>
+        <div style={{ width: 360, padding: 32, background: "#111", borderRadius: 8, border: "1px solid #1a1a1a" }}>
+          <div style={{ textAlign: "center", marginBottom: 28 }}>
+            <div style={{ fontSize: 10, color: "#D4AF37", letterSpacing: 4, fontFamily: mono, textTransform: "uppercase", marginBottom: 4 }}>Scouting Intelligence</div>
+            <h1 style={{ margin: 0, fontSize: 32, fontWeight: 800, color: "#fff" }}>EVAL<span style={{ color: "#D4AF37" }}>PRO</span></h1>
           </div>
-          <div style={{ background: "#111", borderRadius: 8, padding: 24, border: "1px solid #1a1a1a" }}>
-            <div style={{ fontSize: 11, color: "#888", fontFamily: mono, marginBottom: 12 }}>joshuadrayden20@gmail.com</div>
-            <div style={labelStyle}>Password</div>
-            <input type="password" value={loginPw} onChange={e => setLoginPw(e.target.value)} style={inputStyle} placeholder="Your Supabase password" onKeyDown={e => { if (e.key === "Enter") handleLogin(); }} />
-            {loginErr && <div style={{ fontSize: 11, color: "#E74C3C", fontFamily: mono, marginTop: 8 }}>{loginErr}</div>}
-            <div style={{ display: "flex", gap: 8, marginTop: 16 }}>
-              <button onClick={() => setView("create")} style={{ padding: "10px 20px", background: "transparent", border: "1px solid #333", borderRadius: 4, color: "#888", fontSize: 12, cursor: "pointer", fontFamily: mono }}>SKIP</button>
-              <button onClick={handleLogin} disabled={loginLoading || !loginPw} style={{ padding: "10px 20px", background: (loginLoading || !loginPw) ? "#333" : "#D4AF37", border: "none", borderRadius: 4, color: (loginLoading || !loginPw) ? "#666" : "#000", fontSize: 12, fontWeight: 700, cursor: (loginLoading || !loginPw) ? "default" : "pointer", fontFamily: mono }}>{loginLoading ? "..." : "CONNECT"}</button>
-            </div>
+          <div style={{ display: "flex", marginBottom: 20, borderRadius: 4, overflow: "hidden", border: "1px solid #222" }}>
+            {["login", "signup"].map(v => <button key={v} onClick={() => { setAuthView(v); setLoginErr(""); }} style={{ flex: 1, padding: 8, background: authView === v ? "#D4AF3722" : "#0a0a0a", border: "none", color: authView === v ? "#D4AF37" : "#666", fontSize: 11, fontWeight: 700, cursor: "pointer", fontFamily: mono }}>{v === "login" ? "SIGN IN" : "SIGN UP"}</button>)}
+          </div>
+          <div style={{ display: "flex", flexDirection: "column", gap: 12 }}>
+            <div><div style={labelStyle}>Email</div><input type="email" value={loginEmail} onChange={e => setLoginEmail(e.target.value)} style={inputStyle} placeholder="coach@school.edu" /></div>
+            <div><div style={labelStyle}>Password</div><input type="password" value={loginPw} onChange={e => setLoginPw(e.target.value)} style={inputStyle} placeholder="Min 6 characters" onKeyDown={e => { if (e.key === "Enter") handleAuth(); }} /></div>
+            {loginErr && <div style={{ fontSize: 11, color: loginErr.includes("confirm") || loginErr.includes("Check") ? "#D4AF37" : "#E74C3C", fontFamily: mono, padding: 8, background: "#1a1a1a", borderRadius: 4 }}>{loginErr}</div>}
+            <button onClick={handleAuth} disabled={loginLoading || !loginEmail || !loginPw} style={{ padding: 12, background: (loginLoading || !loginEmail || !loginPw) ? "#333" : "#D4AF37", border: "none", borderRadius: 4, color: (loginLoading || !loginEmail || !loginPw) ? "#666" : "#000", fontSize: 13, fontWeight: 700, cursor: (loginLoading || !loginEmail || !loginPw) ? "default" : "pointer", fontFamily: mono }}>{loginLoading ? "..." : authView === "signup" ? "CREATE ACCOUNT" : "SIGN IN"}</button>
           </div>
         </div>
       </div>
