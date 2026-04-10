@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>EvalPro — Scouting Intelligence</title>
+  <title>EvalPro â Scouting Intelligence</title>
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;700;800;900&display=swap" rel="stylesheet">
@@ -24,9 +24,9 @@
   <script type="text/babel">
 const { useState, useEffect } = React;
 
-// ═══════════════════════════════════════
+// âââââââââââââââââââââââââââââââââââââââ
 // AI REWRITER
-// ═══════════════════════════════════════
+// âââââââââââââââââââââââââââââââââââââââ
 const TERMS = `Body Description: Athletic Build, Cut Up, Developed Lower, Developed Upper, Eyeball Test, High Cut, High-Waisted, Knock-Kneed, Lacks Bulk, Lacks Frame, Lean Frame, Length, Long Arms, Long Levers, Put Together, Sawed Off, Short Arms, Shredded, Stubby.
 Athletic Ability: Drop Weight, Fluid, Rigid, Waist-bender.
 Strength/Explosion: Absorbs Contact, Anchor, Leverage, Play Strength, Roll Hips, Separation, Strains, Torque, Extension, Eyes Up, Forward Lean, Games Recognition, Gap/Duo, Gives Ground, Flying Elbow Release, Mobility.
@@ -58,34 +58,34 @@ async function rewriteEval(rawNotes) {
 CRITICAL STYLE RULES:
 - ALL CAPS for the entire eval
 - Each sentence is a standalone scouting observation stacked together as a paragraph
-- Use em dashes (—) to connect related thoughts within a sentence
+- Use em dashes (â) to connect related thoughts within a sentence
 - Use scouting language: "SHOWS", "FLASHES", "DISPLAYS", "POSSESSES", "PROJECTS AS", "LACKS", "DOES NOT", "WILL NEED", "CURRENTLY", "AT THIS STAGE", "ON FILM", "IN PERSON", "AT THE NEXT LEVEL"
 - Describe frame/build first, then athleticism, then position-specific skills, then projection/next steps
-- Be honest and blunt about limitations — don't sugarcoat
+- Be honest and blunt about limitations â don't sugarcoat
 - End with a projection or action item: "GET TO CAMPUS", "GET TO CAMP", "KEEP TRACKING", "CAMP GUY AT THIS STAGE", etc.
 - Match the length and density of the examples (5-10 sentences typically)
-- Do NOT add information that isn't in the raw notes — only clean up and professionalize what's there
-- IMPORTANT: Do NOT add unnecessary hedging words like "some" unless the raw notes specifically say "some." If the notes say "good press tech" the eval should say "SHOWS GOOD PRESS TECHNIQUE" not "SHOWS SOME GOOD PRESS TECHNIQUE." Be decisive and confident in the language — scouts don't hedge.
+- Do NOT add information that isn't in the raw notes â only clean up and professionalize what's there
+- IMPORTANT: Do NOT add unnecessary hedging words like "some" unless the raw notes specifically say "some." If the notes say "good press tech" the eval should say "SHOWS GOOD PRESS TECHNIQUE" not "SHOWS SOME GOOD PRESS TECHNIQUE." Be decisive and confident in the language â scouts don't hedge.
 
 TERMINOLOGY TO USE WHERE APPLICABLE:
 ${TERMS}
 
-HERE ARE REAL EXAMPLES OF RAW NOTES → FINISHED EVALS. MATCH THIS EXACT STYLE:
+HERE ARE REAL EXAMPLES OF RAW NOTES â FINISHED EVALS. MATCH THIS EXACT STYLE:
 
 RAW: unverified 5'10 180 - plays wr and bd. shows good ball skills and tracking ability. has a thicker more filled out frame. has some quickness at the top of the route. shows some fluidity in his hips. not a burner but adequate speed. shows some physicality on defense. willing tackler. has some mym ability. does some good things. would project as a slot. good frame. keep tracking. has good release package.
 EVAL: UNVERIFIED 5'10, 180 ATHLETE WHO PLAYS WR AND DB. THICKER, MORE FILLED-OUT FRAME WITH A GOOD BUILD FOR A SLOT PROJECTION. SHOWS GOOD BALL SKILLS AND TRACKING ABILITY, AND THERE IS SOME QUICKNESS AT THE TOP OF THE ROUTE WITH A GOOD RELEASE PACKAGE. HAS SOME FLUIDITY IN HIS HIPS AND ENOUGH SPEED TO FUNCTION, THOUGH HE DOES NOT LOOK LIKE A TRUE BURNER. ON DEFENSE, SHOWS SOME PHYSICALITY, IS A WILLING TACKLER, AND BRINGS SOME MAKE-YOU-MISS ABILITY IN SPACE. DOES SOME GOOD THINGS ON BOTH SIDES AND HAS A FRAME WORTH CONTINUING TO TRACK, WITH BEST LONG-TERM FIT PROJECTING INSIDE AT SLOT.
 
 RAW: UNVERIFIED 5'10 155. HAS A 10.74 100M TIME. AVERAGE HEIGHT LIGHT. BUT LOOKS LIKE HE CAN GET BIGGER. HAS SOME QUICKNESS OUT THE BREAK - WILL TRIGGER DOWN HILL. LOOKS TO HAVE GOOD FOOTSPEED. NOT AFRAID IN THE RUN GAME. WILL COME UP AND TACKLE AND DEFEAT BLOCKS. SHOWS SOME GOOD PRESS TECH. YOUNG - REALLY LIGHT WOULD DEFINITELY NEED TO ADD WEIGHT. WANNA SEE MORE BALL PRODUCTION. WOULD BE A CAMP GUY AT THIS STAGE
-EVAL: UNVERIFIED 5'10, 155 DB WITH VERIFIED 10.74 100M SPEED. AVERAGE HEIGHT BUT A LIGHT FRAME THAT STILL LOOKS LIKE IT HAS ROOM TO ADD GOOD WEIGHT. SHOWS GOOD FOOT SPEED WITH QUICKNESS OUT OF HIS BREAK AND WILL TRIGGER DOWNHILL. COMPETES IN THE RUN GAME — NOT AFRAID TO COME UP, TACKLE, AND WORK TO DEFEAT BLOCKS. SHOWS SOME GOOD PRESS TECHNIQUE AT THE LINE. YOUNG PLAYER WITH TRAITS BUT CURRENTLY VERY LIGHT AND WILL NEED TO CONTINUE ADDING MASS AND STRENGTH. WOULD LIKE TO SEE MORE BALL PRODUCTION ON FILM. CAMP GUY AT THIS STAGE.
+EVAL: UNVERIFIED 5'10, 155 DB WITH VERIFIED 10.74 100M SPEED. AVERAGE HEIGHT BUT A LIGHT FRAME THAT STILL LOOKS LIKE IT HAS ROOM TO ADD GOOD WEIGHT. SHOWS GOOD FOOT SPEED WITH QUICKNESS OUT OF HIS BREAK AND WILL TRIGGER DOWNHILL. COMPETES IN THE RUN GAME â NOT AFRAID TO COME UP, TACKLE, AND WORK TO DEFEAT BLOCKS. SHOWS SOME GOOD PRESS TECHNIQUE AT THE LINE. YOUNG PLAYER WITH TRAITS BUT CURRENTLY VERY LIGHT AND WILL NEED TO CONTINUE ADDING MASS AND STRENGTH. WOULD LIKE TO SEE MORE BALL PRODUCTION ON FILM. CAMP GUY AT THIS STAGE.
 
 RAW: Verified 6' 191. good frame and good height. has a good built out build. not very explosive. not a blazer - speed is questionable. displays good ball skills and concentration. plays through contact and can make contested catches. not a real dynamic player. not sure if he has enough juice for the wr position at our level.
 EVAL: VERIFIED 6'0, 191 WR WITH GOOD HEIGHT AND A WELL-BUILT FRAME. PHYSICALLY PUT TOGETHER WITH A SOLID, FILLED-OUT BUILD. SHOWS GOOD BALL SKILLS AND CONCENTRATION AND IS COMFORTABLE PLAYING THROUGH CONTACT. ABLE TO MAKE CONTESTED CATCHES AND FINISH IN TRAFFIC. HOWEVER, DOES NOT APPEAR OVERLY EXPLOSIVE AND LONG SPEED IS QUESTIONABLE. NOT A TRUE BLAZER AND LACKS SOME DYNAMIC PLAYMAKING ABILITY. OVERALL SKILL SET AND SPEED PROFILE MAY LIMIT HIS CEILING AT WR AT OUR LEVEL.
 
 RAW: VERIFIED 5'11.5 166 - GOOD FRAME AND HEIGHT. ACCELERATION LOOKS SMOOTH OFF THE LINE. EFFICIENT RELEASE PACKAGE. FLASHES NATURAL HANDS. LOOKS THICKER THAN HIS WEIGHT. HAS GOOD STRENGTH CAN FIGHT THROUGH CONTACT. ISNT A TRUE BURNER. MORE OF A POSSESSION GUY. KNOWS HOW TO RUN ROUTES AND GET OPEN. NOT THE MOST DYNAMIC ATHLETE BUT GOOD ENOUGH. GET TO MINI CAMP AND SEE HOW EXPLOSIVE AND SUDDEN HE IS IN PERSON. GOOD PLAYER
-EVAL: VERIFIED 5'11.5, 166 WR WITH GOOD HEIGHT AND A SOLID FRAME. SHOWS SMOOTH ACCELERATION OFF THE LINE WITH AN EFFICIENT RELEASE PACKAGE. FLASHES NATURAL HANDS AND LOOKS THICKER THAN HIS LISTED WEIGHT. PLAYS WITH GOOD STRENGTH AND CAN FIGHT THROUGH CONTACT. NOT A TRUE BURNER — PROJECTS MORE AS A POSSESSION-TYPE WR. UNDERSTANDS HOW TO RUN ROUTES AND FIND SPACE TO GET OPEN. NOT THE MOST DYNAMIC ATHLETE BUT HAS ENOUGH ABILITY TO BE EFFECTIVE. GET TO MINI CAMP TO SEE HOW EXPLOSIVE AND SUDDEN HE IS IN PERSON. GOOD PLAYER.
+EVAL: VERIFIED 5'11.5, 166 WR WITH GOOD HEIGHT AND A SOLID FRAME. SHOWS SMOOTH ACCELERATION OFF THE LINE WITH AN EFFICIENT RELEASE PACKAGE. FLASHES NATURAL HANDS AND LOOKS THICKER THAN HIS LISTED WEIGHT. PLAYS WITH GOOD STRENGTH AND CAN FIGHT THROUGH CONTACT. NOT A TRUE BURNER â PROJECTS MORE AS A POSSESSION-TYPE WR. UNDERSTANDS HOW TO RUN ROUTES AND FIND SPACE TO GET OPEN. NOT THE MOST DYNAMIC ATHLETE BUT HAS ENOUGH ABILITY TO BE EFFECTIVE. GET TO MINI CAMP TO SEE HOW EXPLOSIVE AND SUDDEN HE IS IN PERSON. GOOD PLAYER.
 
 RAW: unverified 6'4 175 - looks bigger on tape. has a big frame. he also plays basketball. has the ability to go up and high point the ball. fluid move within his vertical routes down the field. not alot of cod or saq or mym after the catch. more of a possession catcher. he may have the frame to grow and be a big slot or small y. get to campus for camp to see him work in person
-EVAL: UNVERIFIED 6'4 175 WITH A LONG, LEAN FRAME THAT PLAYS BIGGER ON TAPE—CLEAR LENGTH WITH ROOM FOR PHYSICAL DEVELOPMENT. MULTI-SPORT BACKGROUND (BASKETBALL) SHOWS UP IN HIS ABILITY TO ELEVATE AND HIGH-POINT THE FOOTBALL, CONSISTENTLY WINNING IN THE AIR WITH STRONG BALL SKILLS. FLUID STRIDER ON VERTICAL ROUTES WITH THE ABILITY TO COVER GROUND DOWNFIELD, BUT ROUTE TREE IS LIMITED AND LACKS EXPOSURE TO FULL ROUTE DEVELOPMENT. MINIMAL CHANGE OF DIRECTION AND SHORT AREA QUICKNESS ON FILM—DOES NOT SHOW MUCH MAKE-YOU-MISS OR YAC ABILITY. PROJECTS MORE AS A POSSESSION RECEIVER AT THIS STAGE. FRAME SUGGESTS POTENTIAL TO ADD MASS AND TRANSITION INTO A BIG SLOT OR SMALL Y WITH DEVELOPMENT. NEEDS IN-PERSON EVAL TO VERIFY ATHLETICISM, FLUIDITY, AND EXPANDED ROUTE CAPABILITY.
+EVAL: UNVERIFIED 6'4 175 WITH A LONG, LEAN FRAME THAT PLAYS BIGGER ON TAPEâCLEAR LENGTH WITH ROOM FOR PHYSICAL DEVELOPMENT. MULTI-SPORT BACKGROUND (BASKETBALL) SHOWS UP IN HIS ABILITY TO ELEVATE AND HIGH-POINT THE FOOTBALL, CONSISTENTLY WINNING IN THE AIR WITH STRONG BALL SKILLS. FLUID STRIDER ON VERTICAL ROUTES WITH THE ABILITY TO COVER GROUND DOWNFIELD, BUT ROUTE TREE IS LIMITED AND LACKS EXPOSURE TO FULL ROUTE DEVELOPMENT. MINIMAL CHANGE OF DIRECTION AND SHORT AREA QUICKNESS ON FILMâDOES NOT SHOW MUCH MAKE-YOU-MISS OR YAC ABILITY. PROJECTS MORE AS A POSSESSION RECEIVER AT THIS STAGE. FRAME SUGGESTS POTENTIAL TO ADD MASS AND TRANSITION INTO A BIG SLOT OR SMALL Y WITH DEVELOPMENT. NEEDS IN-PERSON EVAL TO VERIFY ATHLETICISM, FLUIDITY, AND EXPANDED ROUTE CAPABILITY.
 
 RAW: VERIFIED 5'9 171 - SHORTER PLAYER - GOOD FRAME NOT TO SKINNY. SHOWS SOME EXPLOSION OUT OF HIS BREAKS. SHOWS THE ABILITY TO OPEN HIS HIPS. HAS GOOD DOWNFIELD SPEED TO RUN WITH WRS. WILL TURN HIS HEAD AND PLAY THE BALL. SHOWS GOOD FOOT SPEED AND CAN GET HANDS ON IN PRESS. PLAYS WITH GOOD PHYSICALITY. CAN BE STICKY IN COVERAGE. SHORTER GUY BUT A GOOD PLAYER. GET TO CAMPUS
 EVAL: VERIFIED 5'9, 171 DB WITH A SHORTER STATURE BUT A SOLID, WELL-BUILT FRAME. SHOWS SOME EXPLOSION OUT OF HIS BREAKS AND THE ABILITY TO OPEN HIS HIPS AND RUN. HAS GOOD DOWNFIELD SPEED TO CARRY WRS VERTICALLY. WILL TURN HIS HEAD AND PLAY THE BALL. DISPLAYS GOOD FOOT SPEED AND CAN GET HANDS ON RECEIVERS IN PRESS. PLAYS WITH GOOD PHYSICALITY AND CAN BE STICKY IN COVERAGE. SHORTER PLAYER, BUT A GOOD ONE. GET TO CAMPUS.
@@ -106,9 +106,9 @@ ${rawNotes}` }]
   return data.content?.map(b => b.type === "text" ? b.text : "").filter(Boolean).join("\n") || "";
 }
 
-// ═══════════════════════════════════════
+// âââââââââââââââââââââââââââââââââââââââ
 // CONSTANTS
-// ═══════════════════════════════════════
+// âââââââââââââââââââââââââââââââââââââââ
 const RATING_SCALE = [
   { value: 0, label: "Major Power 5 Offers", color: "#2E86DE", bg: "#0d1f2e" },
   { value: 1, label: "Offer", color: "#27AE60", bg: "#0f2a12" },
@@ -125,9 +125,9 @@ const labelStyle = { fontSize: 10, color: "#888", textTransform: "uppercase", le
 function loadLocal(key, def) { try { return JSON.parse(localStorage.getItem(key)) || def; } catch { return def; } }
 function saveLocal(key, val) { localStorage.setItem(key, JSON.stringify(val)); }
 
-// ═══════════════════════════════════════
+// âââââââââââââââââââââââââââââââââââââââ
 // SUPABASE CLIENT
-// ═══════════════════════════════════════
+// âââââââââââââââââââââââââââââââââââââââ
 const SB_URL = "https://dollnqmkqtftizumvowh.supabase.co";
 const SB_KEY = "sb_publishable_4eU6AmctVBXgFShdzoDQRQ_7c63FwUM";
 function createClient(url, key) {
@@ -152,7 +152,7 @@ function createClient(url, key) {
       const filters = [];
       const obj = {
         select(c) { query = "?select=" + (c || "*"); method = "GET"; return obj; },
-        upsert(data) { method = "POST"; body = JSON.stringify(Array.isArray(data) ? data : [data]); return { async execute() { return req("/rest/v1/" + table, { method, body, headers: { Prefer: "return=representation,resolution=merge-duplicates" } }); } }; },
+        upsert(data, { onConflict } = {}) { method = "POST"; body = JSON.stringify(Array.isArray(data) ? data : [data]); const oc = onConflict ? "?on_conflict=" + onConflict : ""; return { async execute() { return req("/rest/v1/" + table + oc, { method, body, headers: { Prefer: "return=representation,resolution=merge-duplicates" } }); } }; },
         delete() { method = "DELETE"; return obj; },
         eq(c, v) { filters.push(c + "=eq." + v); return obj; },
         async execute() { let p = "/rest/v1/" + table; const f = filters.join("&"); if (method === "GET") p += query + (f ? (query ? "&" : "?") + f : ""); else p += f ? "?" + f : ""; return req(p, { method, body }); }
@@ -173,7 +173,7 @@ function rowToEval(row) {
 function RatingBadge({ rating }) {
   const r = RATING_SCALE.find(s => s.value === rating);
   if (!r) return <span style={{ color: "#555", fontSize: 11 }}>Unrated</span>;
-  return <span style={{ padding: "3px 8px", fontSize: 10, background: r.bg, color: r.color, border: `1px solid ${r.color}44`, borderRadius: 4, fontWeight: 700, fontFamily: mono, textTransform: "uppercase", whiteSpace: "nowrap" }}>{r.value} — {r.label}</span>;
+  return <span style={{ padding: "3px 8px", fontSize: 10, background: r.bg, color: r.color, border: `1px solid ${r.color}44`, borderRadius: 4, fontWeight: 700, fontFamily: mono, textTransform: "uppercase", whiteSpace: "nowrap" }}>{r.value} â {r.label}</span>;
 }
 
 function CompactRatingPicker({ value, onChange }) {
@@ -190,7 +190,7 @@ function CompactRatingPicker({ value, onChange }) {
   );
 }
 
-// ═══════════════════════════════════════
+// âââââââââââââââââââââââââââââââââââââââ
 function App() {
   const [view, setView] = useState("login");
   const [evals, setEvals] = useState([]);
@@ -208,7 +208,7 @@ function App() {
   const [boardHsYear, setBoardHsYear] = useState(null);
   const [boardOrder, setBoardOrder] = useState({});
   const [previewId, setPreviewId] = useState(null);
-  const [dragIdx, setDragIdx] = useState(null);
+  const [dragState, setDragState] = useState(null);
 
   const [filterPos, setFilterPos] = useState(null);
   const [filterYear, setFilterYear] = useState(null);
@@ -251,7 +251,7 @@ function App() {
         setEvals(merged);
         saveLocal("evalpro_evals", merged);
         for (const ev of localOnly) {
-          try { await supabase.from("evals").upsert(evalToRow(ev, user.id)).execute(); } catch {}
+          try { await supabase.from("evals").upsert(evalToRow(ev, user.id), { onConflict: "id" }).execute(); } catch {}
         }
       }
       const orders = await supabase.from("board_orders").select().execute();
@@ -307,10 +307,10 @@ function App() {
     saveLocal("evalpro_board", newOrder);
   }
 
-  // Cloud save helpers (fire and forget — local is source of truth)
+  // Cloud save helpers (fire and forget â local is source of truth)
   async function cloudSaveEval(ev) {
     if (!user) return;
-    try { await supabase.from("evals").upsert(evalToRow(ev, user.id)).execute(); } catch (e) { console.error("Cloud save error:", e); }
+    try { await supabase.from("evals").upsert(evalToRow(ev, user.id), { onConflict: "id" }).execute(); } catch (e) { console.error("Cloud save error:", e); }
   }
   async function cloudDeleteEval(id) {
     if (!user) return;
@@ -318,7 +318,7 @@ function App() {
   }
   async function cloudSaveBoardOrder(key, list) {
     if (!user) return;
-    try { await supabase.from("board_orders").upsert({ id: key, user_id: user.id, order_list: list, updated_at: new Date().toISOString() }).execute(); } catch {}
+    try { await supabase.from("board_orders").upsert({ id: key, user_id: user.id, order_list: list, updated_at: new Date().toISOString() }, { onConflict: "id" }).execute(); } catch {}
   }
 
   async function generateEval() {
@@ -355,7 +355,7 @@ function App() {
 
   const allYears = [...new Set(evals.map(e => e.year).filter(Boolean))].sort();
 
-  // ═══════ NAV ═══════
+  // âââââââ NAV âââââââ
   function NavBar() {
     return (
       <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: 24, borderBottom: "2px solid #D4AF37", paddingBottom: 16, flexWrap: "wrap", gap: 10 }}>
@@ -368,17 +368,17 @@ function App() {
             <button key={t.key} onClick={() => setView(t.key)} style={{ padding: "6px 14px", fontSize: 10, fontFamily: mono, letterSpacing: 1, background: view === t.key ? "#D4AF3722" : "transparent", border: view === t.key ? "1px solid #D4AF37" : "1px solid #333", borderRadius: 4, color: view === t.key ? "#D4AF37" : "#888", cursor: "pointer", fontWeight: view === t.key ? 700 : 400 }}>{t.label}</button>
           )}
           {user ? (<>
-            <span style={{ fontSize: 9, color: "#27AE60", fontFamily: mono, padding: "4px 8px", background: "#27AE6015", borderRadius: 4, border: "1px solid #27AE6033" }}>{syncing ? "syncing..." : "☁ cloud"}</span>
+            <span style={{ fontSize: 9, color: "#27AE60", fontFamily: mono, padding: "4px 8px", background: "#27AE6015", borderRadius: 4, border: "1px solid #27AE6033" }}>{syncing ? "syncing..." : "â cloud"}</span>
             <button onClick={signOut} style={{ padding: "4px 10px", background: "transparent", border: "1px solid #333", borderRadius: 4, color: "#555", fontSize: 9, cursor: "pointer", fontFamily: mono }}>SIGN OUT</button>
           </>) : (
-            <span style={{ fontSize: 9, color: "#888", fontFamily: mono, padding: "4px 8px", background: "#1a1a1a", borderRadius: 4, border: "1px solid #333", cursor: "pointer" }} onClick={() => setView("login")}>☁ connect</span>
+            <span style={{ fontSize: 9, color: "#888", fontFamily: mono, padding: "4px 8px", background: "#1a1a1a", borderRadius: 4, border: "1px solid #333", cursor: "pointer" }} onClick={() => setView("login")}>â connect</span>
           )}
         </div>
       </div>
     );
   }
 
-  // ═══════ AUTH SCREEN ═══════
+  // âââââââ AUTH SCREEN âââââââ
   if (!user && view !== "create" && view !== "evals" && view !== "board" && view !== "preview") {
     return (
       <div style={{ background: "#0a0a0a", minHeight: "100vh", display: "flex", alignItems: "center", justifyContent: "center" }}>
@@ -424,7 +424,7 @@ function App() {
     );
   }
 
-  // ═══════ CREATE ═══════
+  // âââââââ CREATE âââââââ
   if (view === "create") {
     return (
       <div style={{ background: "#0a0a0a", minHeight: "100vh", color: "#e0e0e0" }}>
@@ -434,7 +434,7 @@ function App() {
           <p style={{ fontSize: 12, color: "#666", marginBottom: 16, lineHeight: 1.5 }}>Fill in the player info, paste your raw notes, pick a grade, and hit Create Eval.</p>
           <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr 1fr 1fr", gap: 8, marginBottom: 12 }}>
             <div><div style={labelStyle}>Name</div><input value={playerName} onChange={e => setPlayerName(e.target.value)} style={inputStyle} placeholder="Player Name" /></div>
-            <div><div style={labelStyle}>Position</div><select value={playerPos} onChange={e => setPlayerPos(e.target.value)} style={inputStyle}><option value="">—</option>{Object.entries(POSITIONS).map(([g, ps]) => <optgroup key={g} label={g}>{ps.map(p => <option key={p} value={p}>{p}</option>)}</optgroup>)}</select></div>
+            <div><div style={labelStyle}>Position</div><select value={playerPos} onChange={e => setPlayerPos(e.target.value)} style={inputStyle}><option value="">â</option>{Object.entries(POSITIONS).map(([g, ps]) => <optgroup key={g} label={g}>{ps.map(p => <option key={p} value={p}>{p}</option>)}</optgroup>)}</select></div>
             <div><div style={labelStyle}>School</div><input value={playerSchool} onChange={e => setPlayerSchool(e.target.value)} style={inputStyle} placeholder="School / Team" /></div>
             <div><div style={labelStyle}>Year</div><input value={playerYear} onChange={e => setPlayerYear(e.target.value)} style={inputStyle} placeholder="2026" /></div>
           </div>
@@ -452,7 +452,7 @@ function App() {
     );
   }
 
-  // ═══════ PREVIEW ═══════
+  // âââââââ PREVIEW âââââââ
   if (view === "preview" && preview) {
     const r = RATING_SCALE.find(s => s.value === rating);
     return (
@@ -463,9 +463,9 @@ function App() {
             <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: 16, flexWrap: "wrap", gap: 8 }}>
               <div>
                 <div style={{ fontSize: 22, fontWeight: 800, color: "#fff" }}>{preview.name || "Player"}</div>
-                <div style={{ fontSize: 11, color: "#888", fontFamily: mono, marginTop: 4 }}>{[preview.position, preview.school, preview.year, preview.height, preview.weight ? preview.weight + "lbs" : ""].filter(Boolean).join(" · ")}</div>
+                <div style={{ fontSize: 11, color: "#888", fontFamily: mono, marginTop: 4 }}>{[preview.position, preview.school, preview.year, preview.height, preview.weight ? preview.weight + "lbs" : ""].filter(Boolean).join(" Â· ")}</div>
               </div>
-              {r && <div style={{ padding: "6px 14px", background: r.bg, color: r.color, border: `1px solid ${r.color}44`, borderRadius: 4, fontWeight: 700, fontFamily: mono, fontSize: 12 }}>{r.value} — {r.label}</div>}
+              {r && <div style={{ padding: "6px 14px", background: r.bg, color: r.color, border: `1px solid ${r.color}44`, borderRadius: 4, fontWeight: 700, fontFamily: mono, fontSize: 12 }}>{r.value} â {r.label}</div>}
             </div>
 
             <div style={{ fontSize: 9, color: "#D4AF37", textTransform: "uppercase", letterSpacing: 2, fontFamily: mono, marginBottom: 8 }}>Scouting Evaluation</div>
@@ -480,7 +480,7 @@ function App() {
             </div>
 
             <div style={{ display: "flex", gap: 10, marginTop: 20, flexWrap: "wrap" }}>
-              <button onClick={() => { setView("create"); setPreview(null); }} style={{ padding: "10px 20px", background: "transparent", border: "1px solid #333", borderRadius: 4, color: "#888", fontSize: 12, cursor: "pointer", fontFamily: mono }}>← EDIT NOTES</button>
+              <button onClick={() => { setView("create"); setPreview(null); }} style={{ padding: "10px 20px", background: "transparent", border: "1px solid #333", borderRadius: 4, color: "#888", fontSize: 12, cursor: "pointer", fontFamily: mono }}>â EDIT NOTES</button>
               <button onClick={() => { setGenerating(true); rewriteEval(rawNotes).then(result => { const lines = result.split("\n"); let evalText = result; for (let i = 0; i < lines.length; i++) { if (lines[i].trim().startsWith("{")) { try { JSON.parse(lines[i].trim()); evalText = lines.slice(i + 1).join("\n").trim(); break; } catch {} } } setPreview({ ...preview, eval: evalText }); setGenerating(false); }).catch(() => setGenerating(false)); }} disabled={generating} style={{ padding: "10px 20px", background: "transparent", border: "1px solid #D4AF37", borderRadius: 4, color: "#D4AF37", fontSize: 12, cursor: generating ? "default" : "pointer", fontFamily: mono }}>{generating ? "..." : "REGENERATE"}</button>
               <div style={{ flex: 1 }} />
               <button onClick={saveEval} style={{ padding: "10px 28px", background: "#D4AF37", border: "none", borderRadius: 4, color: "#000", fontSize: 13, fontWeight: 700, cursor: "pointer", fontFamily: mono }}>SAVE EVAL</button>
@@ -491,7 +491,7 @@ function App() {
     );
   }
 
-  // ═══════ EVALS ═══════
+  // âââââââ EVALS âââââââ
   if (view === "evals") {
     const filtered = evals.filter(e => {
       if (filterPos && e.position !== filterPos) return false;
@@ -509,7 +509,7 @@ function App() {
             <select value={filterYear || ""} onChange={e => setFilterYear(e.target.value || null)} style={{ ...inputStyle, maxWidth: 100, fontSize: 11 }}><option value="">All Years</option>{allYears.map(y => <option key={y} value={y}>{y}</option>)}</select>
           </div>
           {filtered.length === 0 ? (
-            <div style={{ textAlign: "center", padding: 60, color: "#444" }}><div style={{ fontSize: 40, marginBottom: 12 }}>🏈</div><div style={{ fontSize: 14 }}>{evals.length === 0 ? "No evals yet — go create one" : "No matches"}</div></div>
+            <div style={{ textAlign: "center", padding: 60, color: "#444" }}><div style={{ fontSize: 40, marginBottom: 12 }}>ð</div><div style={{ fontSize: 14 }}>{evals.length === 0 ? "No evals yet â go create one" : "No matches"}</div></div>
           ) : (
             <div style={{ display: "flex", flexDirection: "column", gap: 8 }}>
               {filtered.map(ev => {
@@ -520,10 +520,10 @@ function App() {
                       <div style={{ width: 36, height: 36, borderRadius: 4, background: "#1a1a1a", display: "flex", alignItems: "center", justifyContent: "center", fontWeight: 800, fontSize: 12, color: "#D4AF37", fontFamily: mono, flexShrink: 0 }}>{ev.position}</div>
                       <div style={{ flex: 1 }}>
                         <div style={{ fontWeight: 700, fontSize: 15, color: "#fff" }}>{ev.name}</div>
-                        <div style={{ fontSize: 10, color: "#666", fontFamily: mono }}>{[ev.school, ev.year, ev.height, ev.weight ? ev.weight + "lbs" : ""].filter(Boolean).join(" · ")}</div>
+                        <div style={{ fontSize: 10, color: "#666", fontFamily: mono }}>{[ev.school, ev.year, ev.height, ev.weight ? ev.weight + "lbs" : ""].filter(Boolean).join(" Â· ")}</div>
                       </div>
                       <RatingBadge rating={ev.rating} />
-                      <button onClick={() => { if (confirm("Delete?")) deleteEval(ev.id); }} style={{ width: 28, height: 28, background: "transparent", border: "1px solid #222", borderRadius: 4, color: "#F4433688", cursor: "pointer", fontSize: 12 }}>✕</button>
+                      <button onClick={() => { if (confirm("Delete?")) deleteEval(ev.id); }} style={{ width: 28, height: 28, background: "transparent", border: "1px solid #222", borderRadius: 4, color: "#F4433688", cursor: "pointer", fontSize: 12 }}>â</button>
                     </div>
                     <div style={{ fontSize: 13, color: "#ccc", lineHeight: 1.6 }}>{ev.eval}</div>
                   </div>
@@ -536,7 +536,7 @@ function App() {
     );
   }
 
-  // ═══════ BOARD ═══════
+  // âââââââ BOARD âââââââ
   if (view === "board") {
     const BP = ["WR", "WRO", "WRI", "Small Y", "CB"];
     const pos = boardPos || "WR";
@@ -562,25 +562,25 @@ function App() {
     }
     const pEval = evals.find(e => e.id === previewId);
 
-    function BoardList({ boardKey, sourceEvals, title }) {
+    function renderBoardList(boardKey, sourceEvals, title) {
       const ids = getOrdered(boardKey, sourceEvals);
       const ordered = ids.map(id => sourceEvals.find(e => e.id === id)).filter(Boolean);
       return (
-        <div style={{ marginBottom: 24 }}>
+        <div key={boardKey} style={{ marginBottom: 24 }}>
           <div style={{ display: "flex", alignItems: "center", gap: 8, marginBottom: 8 }}><div style={{ fontSize: 13, fontWeight: 800, color: "#fff", fontFamily: mono }}>{title}</div><span style={{ fontSize: 10, color: "#555", fontFamily: mono }}>{ordered.length}</span></div>
           {ordered.length === 0 ? <div style={{ background: "#111", border: "1px dashed #222", borderRadius: 4, padding: 20, textAlign: "center", color: "#333", fontSize: 11, fontFamily: mono }}>No {pos}s yet</div> : (
             <div style={{ display: "flex", flexDirection: "column", gap: 3 }}>
               {ordered.map((ev, idx) => {
                 const r = RATING_SCALE.find(s => s.value === ev.rating);
-                const drag = dragIdx === idx;
+                const drag = dragState && dragState.boardKey === boardKey && dragState.idx === idx;
                 return (
-                  <div key={ev.id} draggable onDragStart={() => setDragIdx(idx)} onDragOver={e => e.preventDefault()} onDrop={() => { if (dragIdx !== null && dragIdx !== idx) reorder(boardKey, dragIdx, idx); setDragIdx(null); }} onDragEnd={() => setDragIdx(null)}
+                  <div key={ev.id} draggable onDragStart={() => setDragState({ boardKey, idx })} onDragOver={e => e.preventDefault()} onDrop={() => { if (dragState && dragState.boardKey === boardKey && dragState.idx !== idx) reorder(boardKey, dragState.idx, idx); setDragState(null); }} onDragEnd={() => setDragState(null)}
                     style={{ background: drag ? "#1a1a1a" : "#111", border: `1px solid ${drag ? "#D4AF37" : "#1a1a1a"}`, borderRadius: 4, padding: "8px 12px", display: "flex", alignItems: "center", gap: 10, cursor: "grab", opacity: drag ? 0.5 : 1 }}>
                     <div style={{ width: 28, textAlign: "center", fontSize: 14, fontWeight: 900, color: "#555", fontFamily: mono }}>{idx + 1}</div>
                     <div style={{ width: 10, height: 10, borderRadius: "50%", background: r ? r.color : "#333", flexShrink: 0 }} />
                     <div style={{ flex: 1, minWidth: 0, cursor: "pointer" }} onClick={() => setPreviewId(ev.id)}>
                       <div style={{ fontWeight: 700, fontSize: 13, color: "#fff", whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis" }}>{ev.name}</div>
-                      <div style={{ fontSize: 9, color: "#666", fontFamily: mono }}>{[ev.school, ev.year].filter(Boolean).join(" · ")}</div>
+                      <div style={{ fontSize: 9, color: "#666", fontFamily: mono }}>{[ev.school, ev.year].filter(Boolean).join(" Â· ")}</div>
                     </div>
                     {r && <div style={{ padding: "3px 8px", fontSize: 9, background: r.bg, color: r.color, border: `1px solid ${r.color}44`, borderRadius: 3, fontWeight: 700, fontFamily: mono, flexShrink: 0 }}>{r.value}</div>}
                   </div>
@@ -608,15 +608,15 @@ function App() {
               {boardTab === "hs" ? (
                 hsYears.length === 0 ? <div style={{ textAlign: "center", padding: 60, color: "#444", fontFamily: mono, fontSize: 14 }}>No HS {pos} evals yet</div>
                   : (boardHsYear ? hsYears.filter(y => y === boardHsYear) : hsYears).map(year =>
-                    <BoardList key={year} boardKey={`${pos}-${year}-hs`} sourceEvals={hsEvals.filter(e => e.year === year)} title={`Class of ${year}`} />
+                    renderBoardList(`${pos}-${year}-hs`, hsEvals.filter(e => e.year === year), `Class of ${year}`)
                   )
-              ) : <BoardList boardKey={`${pos}-portal`} sourceEvals={portalEvals} title={`${pos} Transfer Portal Board`} />}
+              ) : renderBoardList(`${pos}-portal`, portalEvals, `${pos} Transfer Portal Board`)}
             </div>
             {pEval && (
               <div style={{ width: 320, flexShrink: 0, background: "#111", border: "1px solid #1a1a1a", borderRadius: 6, padding: 16, position: "sticky", top: 20, maxHeight: "calc(100vh - 40px)", overflowY: "auto" }}>
-                <div style={{ display: "flex", justifyContent: "space-between", marginBottom: 12 }}><span style={{ fontSize: 9, color: "#555", textTransform: "uppercase", letterSpacing: 1, fontFamily: mono }}>Preview</span><button onClick={() => setPreviewId(null)} style={{ background: "transparent", border: "none", color: "#555", cursor: "pointer", fontSize: 14 }}>✕</button></div>
+                <div style={{ display: "flex", justifyContent: "space-between", marginBottom: 12 }}><span style={{ fontSize: 9, color: "#555", textTransform: "uppercase", letterSpacing: 1, fontFamily: mono }}>Preview</span><button onClick={() => setPreviewId(null)} style={{ background: "transparent", border: "none", color: "#555", cursor: "pointer", fontSize: 14 }}>â</button></div>
                 <div style={{ fontSize: 18, fontWeight: 800, color: "#fff", marginBottom: 4 }}>{pEval.name}</div>
-                <div style={{ fontSize: 10, color: "#888", fontFamily: mono, marginBottom: 8 }}>{[pEval.position, pEval.school, pEval.year, pEval.height, pEval.weight ? pEval.weight + "lbs" : ""].filter(Boolean).join(" · ")}</div>
+                <div style={{ fontSize: 10, color: "#888", fontFamily: mono, marginBottom: 8 }}>{[pEval.position, pEval.school, pEval.year, pEval.height, pEval.weight ? pEval.weight + "lbs" : ""].filter(Boolean).join(" Â· ")}</div>
                 <div style={{ marginBottom: 12 }}><RatingBadge rating={pEval.rating} /></div>
                 <div style={{ fontSize: 9, color: "#D4AF37", textTransform: "uppercase", letterSpacing: 2, fontFamily: mono, marginBottom: 6 }}>Evaluation</div>
                 <div style={{ fontSize: 13, color: "#ccc", lineHeight: 1.6 }}>{pEval.eval}</div>
