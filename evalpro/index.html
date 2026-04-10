@@ -203,12 +203,16 @@ function App() {
   const [playerYear, setPlayerYear] = useState("");
   const [playerPos, setPlayerPos] = useState("");
 
-  const [boardPos, setBoardPos] = useState("WR");
+  const [boardPos, setBoardPos] = useState("WRO");
   const [boardTab, setBoardTab] = useState("hs");
   const [boardHsYear, setBoardHsYear] = useState(null);
   const [boardOrder, setBoardOrder] = useState({});
   const [previewId, setPreviewId] = useState(null);
   const [dragState, setDragState] = useState(null);
+  const [boardView, setBoardView] = useState("index");
+
+  const [editingId, setEditingId] = useState(null);
+  const [editForm, setEditForm] = useState(null);
 
   const [filterPos, setFilterPos] = useState(null);
   const [filterYear, setFilterYear] = useState(null);
@@ -365,7 +369,7 @@ function App() {
         </div>
         <div style={{ display: "flex", gap: 4, alignItems: "center", flexWrap: "wrap" }}>
           {[{ key: "create", label: "CREATE" }, { key: "evals", label: "EVALS" }, { key: "board", label: "BOARD" }].map(t =>
-            <button key={t.key} onClick={() => setView(t.key)} style={{ padding: "6px 14px", fontSize: 10, fontFamily: mono, letterSpacing: 1, background: view === t.key ? "#D4AF3722" : "transparent", border: view === t.key ? "1px solid #D4AF37" : "1px solid #333", borderRadius: 4, color: view === t.key ? "#D4AF37" : "#888", cursor: "pointer", fontWeight: view === t.key ? 700 : 400 }}>{t.label}</button>
+            <button key={t.key} onClick={() => { setView(t.key); if (t.key === "board") setBoardView("index"); }} style={{ padding: "6px 14px", fontSize: 10, fontFamily: mono, letterSpacing: 1, background: view === t.key ? "#D4AF3722" : "transparent", border: view === t.key ? "1px solid #D4AF37" : "1px solid #333", borderRadius: 4, color: view === t.key ? "#D4AF37" : "#888", cursor: "pointer", fontWeight: view === t.key ? 700 : 400 }}>{t.label}</button>
           )}
           {user ? (<>
             <span style={{ fontSize: 9, color: "#27AE60", fontFamily: mono, padding: "4px 8px", background: "#27AE6015", borderRadius: 4, border: "1px solid #27AE6033" }}>{syncing ? "syncing..." : "â cloud"}</span>
@@ -434,7 +438,7 @@ function App() {
           <p style={{ fontSize: 12, color: "#666", marginBottom: 16, lineHeight: 1.5 }}>Fill in the player info, paste your raw notes, pick a grade, and hit Create Eval.</p>
           <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr 1fr 1fr", gap: 8, marginBottom: 12 }}>
             <div><div style={labelStyle}>Name</div><input value={playerName} onChange={e => setPlayerName(e.target.value)} style={inputStyle} placeholder="Player Name" /></div>
-            <div><div style={labelStyle}>Position</div><select value={playerPos} onChange={e => setPlayerPos(e.target.value)} style={inputStyle}><option value="">â</option>{Object.entries(POSITIONS).map(([g, ps]) => <optgroup key={g} label={g}>{ps.map(p => <option key={p} value={p}>{p}</option>)}</optgroup>)}</select></div>
+            <div><div style={labelStyle}>Position</div><select value={playerPos} onChange={e => setPlayerPos(e.target.value)} style={inputStyle}><option value="">-- Select --</option>{Object.entries(POSITIONS).map(([g, ps]) => <optgroup key={g} label={g}>{ps.map(p => <option key={p} value={p}>{p}</option>)}</optgroup>)}</select></div>
             <div><div style={labelStyle}>School</div><input value={playerSchool} onChange={e => setPlayerSchool(e.target.value)} style={inputStyle} placeholder="School / Team" /></div>
             <div><div style={labelStyle}>Year</div><input value={playerYear} onChange={e => setPlayerYear(e.target.value)} style={inputStyle} placeholder="2026" /></div>
           </div>
@@ -492,6 +496,20 @@ function App() {
   }
 
   // âââââââ EVALS âââââââ
+  function startEdit(ev) {
+    setEditingId(ev.id);
+    setEditForm({ name: ev.name, position: ev.position, school: ev.school || "", year: ev.year || "", rawNotes: ev.rawNotes || "", eval: ev.eval || "", rating: ev.rating });
+  }
+  function cancelEdit() { setEditingId(null); setEditForm(null); }
+  function saveEdit() {
+    if (!editForm || !editingId) return;
+    const updated = evals.map(e => e.id === editingId ? { ...e, name: editForm.name, position: editForm.position, school: editForm.school, year: editForm.year, rawNotes: editForm.rawNotes, eval: editForm.eval, rating: editForm.rating } : e);
+    persistEvals(updated);
+    const ev = updated.find(e => e.id === editingId);
+    if (ev) cloudSaveEval(ev);
+    setEditingId(null); setEditForm(null);
+  }
+
   if (view === "evals") {
     const filtered = evals.filter(e => {
       if (filterPos && e.position !== filterPos) return false;
@@ -505,8 +523,8 @@ function App() {
           <NavBar />
           <div style={{ display: "flex", gap: 6, marginBottom: 16, flexWrap: "wrap" }}>
             <input value={searchText} onChange={e => setSearchText(e.target.value)} placeholder="Search..." style={{ ...inputStyle, maxWidth: 160, fontSize: 11 }} />
-            <select value={filterPos || ""} onChange={e => setFilterPos(e.target.value || null)} style={{ ...inputStyle, maxWidth: 90, fontSize: 11 }}><option value="">All Pos</option>{Object.entries(POSITIONS).map(([g, ps]) => <optgroup key={g} label={g}>{ps.map(p => <option key={p} value={p}>{p}</option>)}</optgroup>)}</select>
-            <select value={filterYear || ""} onChange={e => setFilterYear(e.target.value || null)} style={{ ...inputStyle, maxWidth: 100, fontSize: 11 }}><option value="">All Years</option>{allYears.map(y => <option key={y} value={y}>{y}</option>)}</select>
+            <select value={filterPos || ""} onChange={e => setFilterPos(e.target.value || null)} style={{ ...inputStyle, maxWidth: 90, fontSize: 11 }}><option value="">-- Select --</option>{Object.entries(POSITIONS).map(([g, ps]) => <optgroup key={g} label={g}>{ps.map(p => <option key={p} value={p}>{p}</option>)}</optgroup>)}</select>
+            <select value={filterYear || ""} onChange={e => setFilterYear(e.target.value || null)} style={{ ...inputStyle, maxWidth: 100, fontSize: 11 }}><option value="">-- Select --</option>{allYears.map(y => <option key={y} value={y}>{y}</option>)}</select>
           </div>
           {filtered.length === 0 ? (
             <div style={{ textAlign: "center", padding: 60, color: "#444" }}><div style={{ fontSize: 40, marginBottom: 12 }}>ð</div><div style={{ fontSize: 14 }}>{evals.length === 0 ? "No evals yet â go create one" : "No matches"}</div></div>
@@ -514,6 +532,29 @@ function App() {
             <div style={{ display: "flex", flexDirection: "column", gap: 8 }}>
               {filtered.map(ev => {
                 const r = RATING_SCALE.find(s => s.value === ev.rating);
+                if (editingId === ev.id && editForm) {
+                  return (
+                    <div key={ev.id} style={{ background: "#111", border: "1px solid #D4AF3744", borderRadius: 6, padding: 16 }}>
+                      <div style={{ fontSize: 9, color: "#D4AF37", textTransform: "uppercase", letterSpacing: 2, fontFamily: mono, marginBottom: 12 }}>Editing Eval</div>
+                      <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr 1fr 1fr", gap: 8, marginBottom: 12 }}>
+                        <div><div style={labelStyle}>Name</div><input value={editForm.name} onChange={e => setEditForm({ ...editForm, name: e.target.value })} style={inputStyle} /></div>
+                        <div><div style={labelStyle}>Position</div><select value={editForm.position} onChange={e => setEditForm({ ...editForm, position: e.target.value })} style={inputStyle}><option value="">-- Select --</option>{Object.entries(POSITIONS).map(([g, ps]) => <optgroup key={g} label={g}>{ps.map(p => <option key={p} value={p}>{p}</option>)}</optgroup>)}</select></div>
+                        <div><div style={labelStyle}>School</div><input value={editForm.school} onChange={e => setEditForm({ ...editForm, school: e.target.value })} style={inputStyle} /></div>
+                        <div><div style={labelStyle}>Year</div><input value={editForm.year} onChange={e => setEditForm({ ...editForm, year: e.target.value })} style={inputStyle} /></div>
+                      </div>
+                      <div style={labelStyle}>Eval Text</div>
+                      <textarea value={editForm.eval} onChange={e => setEditForm({ ...editForm, eval: e.target.value })} style={{ ...inputStyle, minHeight: 120, resize: "vertical", lineHeight: 1.6, marginBottom: 12 }} />
+                      <div style={labelStyle}>Raw Notes</div>
+                      <textarea value={editForm.rawNotes} onChange={e => setEditForm({ ...editForm, rawNotes: e.target.value })} style={{ ...inputStyle, minHeight: 80, resize: "vertical", lineHeight: 1.5, fontSize: 11, marginBottom: 12 }} />
+                      <div style={labelStyle}>Grade</div>
+                      <CompactRatingPicker value={editForm.rating} onChange={v => setEditForm({ ...editForm, rating: v })} />
+                      <div style={{ display: "flex", gap: 8, marginTop: 14 }}>
+                        <button onClick={cancelEdit} style={{ padding: "8px 18px", background: "transparent", border: "1px solid #333", borderRadius: 4, color: "#888", fontSize: 11, cursor: "pointer", fontFamily: mono }}>CANCEL</button>
+                        <button onClick={saveEdit} style={{ padding: "8px 18px", background: "#D4AF37", border: "none", borderRadius: 4, color: "#000", fontSize: 11, fontWeight: 700, cursor: "pointer", fontFamily: mono }}>SAVE</button>
+                      </div>
+                    </div>
+                  );
+                }
                 return (
                   <div key={ev.id} style={{ background: "#111", border: "1px solid #1a1a1a", borderRadius: 6, padding: 16 }}>
                     <div style={{ display: "flex", alignItems: "center", gap: 10, marginBottom: 10 }}>
@@ -523,6 +564,7 @@ function App() {
                         <div style={{ fontSize: 10, color: "#666", fontFamily: mono }}>{[ev.school, ev.year, ev.height, ev.weight ? ev.weight + "lbs" : ""].filter(Boolean).join(" Â· ")}</div>
                       </div>
                       <RatingBadge rating={ev.rating} />
+                      <button onClick={() => startEdit(ev)} style={{ width: 28, height: 28, background: "transparent", border: "1px solid #222", borderRadius: 4, color: "#D4AF3788", cursor: "pointer", fontSize: 11, fontFamily: mono }}>{String.fromCharCode(9998)}</button>
                       <button onClick={() => { if (confirm("Delete?")) deleteEval(ev.id); }} style={{ width: 28, height: 28, background: "transparent", border: "1px solid #222", borderRadius: 4, color: "#F4433688", cursor: "pointer", fontSize: 12 }}>â</button>
                     </div>
                     <div style={{ fontSize: 13, color: "#ccc", lineHeight: 1.6 }}>{ev.eval}</div>
@@ -538,70 +580,30 @@ function App() {
 
   // âââââââ BOARD âââââââ
   if (view === "board") {
-    const BP = ["WR", "WRO", "WRI", "Small Y", "CB"];
-    const pos = boardPos || "WR";
-    const posEvals = evals.filter(e => e.position === pos);
-    const hsEvals = posEvals.filter(e => e.evalType === "High School");
-    const portalEvals = posEvals.filter(e => e.evalType === "Transfer Portal");
-    const hsYears = [...new Set(hsEvals.map(e => e.year).filter(Boolean))].sort();
+    const BP = ["WRO", "WRI", "CB"];
 
-    function getOrdered(bk, src) {
-      const saved = boardOrder[bk] || [];
-      const ids = new Set(src.map(e => e.id));
-      const ord = saved.filter(id => ids.has(id));
-      const s = new Set(ord);
-      src.forEach(ev => { if (!s.has(ev.id)) ord.push(ev.id); });
-      return ord;
-    }
-    function reorder(bk, from, to) {
-      const src = bk.includes("portal") ? portalEvals : hsEvals.filter(e => e.year === bk.split("-")[1]);
-      const list = getOrdered(bk, src);
-      const [item] = list.splice(from, 1); list.splice(to, 0, item);
-      persistBoard({ ...boardOrder, [bk]: list });
-      cloudSaveBoardOrder(bk, list);
-    }
-    const pEval = evals.find(e => e.id === previewId);
-
-    function renderBoardList(boardKey, sourceEvals, title) {
-      const ids = getOrdered(boardKey, sourceEvals);
-      const ordered = ids.map(id => sourceEvals.find(e => e.id === id)).filter(Boolean);
+    // Board Index (tile grid)
+    if (boardView === "index") {
+      const tiles = [];
+      BP.forEach(p => {
+        const pEvals = evals.filter(e => e.position === p);
+        const hs = pEvals.filter(e => e.evalType === "High School");
+        const portal = pEvals.filter(e => e.evalType === "Transfer Portal");
+        const years = [...new Set(hs.map(e => e.year).filter(Boolean))].sort();
+        years.forEach(y => {
+          const count = hs.filter(e => e.year === y).length;
+          if (count > 0) tiles.push({ pos: p, year: y, type: "hs", label: y + " " + p + "s", sub: "High School", count });
+        });
+        if (portal.length > 0) tiles.push({ pos: p, year: null, type: "portal", label: p + " Transfer Portal", sub: "Portal", count: portal.length });
+      });
       return (
-        <div key={boardKey} style={{ marginBottom: 24 }}>
-          <div style={{ display: "flex", alignItems: "center", gap: 8, marginBottom: 8 }}><div style={{ fontSize: 13, fontWeight: 800, color: "#fff", fontFamily: mono }}>{title}</div><span style={{ fontSize: 10, color: "#555", fontFamily: mono }}>{ordered.length}</span></div>
-          {ordered.length === 0 ? <div style={{ background: "#111", border: "1px dashed #222", borderRadius: 4, padding: 20, textAlign: "center", color: "#333", fontSize: 11, fontFamily: mono }}>No {pos}s yet</div> : (
-            <div style={{ display: "flex", flexDirection: "column", gap: 3 }}>
-              {ordered.map((ev, idx) => {
-                const r = RATING_SCALE.find(s => s.value === ev.rating);
-                const drag = dragState && dragState.boardKey === boardKey && dragState.idx === idx;
-                return (
-                  <div key={ev.id} draggable onDragStart={() => setDragState({ boardKey, idx })} onDragOver={e => e.preventDefault()} onDrop={() => { if (dragState && dragState.boardKey === boardKey && dragState.idx !== idx) reorder(boardKey, dragState.idx, idx); setDragState(null); }} onDragEnd={() => setDragState(null)}
-                    style={{ background: drag ? "#1a1a1a" : "#111", border: `1px solid ${drag ? "#D4AF37" : "#1a1a1a"}`, borderRadius: 4, padding: "8px 12px", display: "flex", alignItems: "center", gap: 10, cursor: "grab", opacity: drag ? 0.5 : 1 }}>
-                    <div style={{ width: 28, textAlign: "center", fontSize: 14, fontWeight: 900, color: "#555", fontFamily: mono }}>{idx + 1}</div>
-                    <div style={{ width: 10, height: 10, borderRadius: "50%", background: r ? r.color : "#333", flexShrink: 0 }} />
-                    <div style={{ flex: 1, minWidth: 0, cursor: "pointer" }} onClick={() => setPreviewId(ev.id)}>
-                      <div style={{ fontWeight: 700, fontSize: 13, color: "#fff", whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis" }}>{ev.name}</div>
-                      <div style={{ fontSize: 9, color: "#666", fontFamily: mono }}>{[ev.school, ev.year].filter(Boolean).join(" Â· ")}</div>
-                    </div>
-                    {r && <div style={{ padding: "3px 8px", fontSize: 9, background: r.bg, color: r.color, border: `1px solid ${r.color}44`, borderRadius: 3, fontWeight: 700, fontFamily: mono, flexShrink: 0 }}>{r.value}</div>}
-                  </div>
-                );
-              })}
-            </div>
-          )}
-        </div>
-      );
-    }
-
-    return (
-      <div style={{ background: "#0a0a0a", minHeight: "100vh", color: "#e0e0e0" }}>
-        <div style={{ maxWidth: 900, margin: "0 auto", padding: "20px 16px" }}>
-          <NavBar />
+        <div style={{ background: "#0a0a0a", minHeight: "100vh", color: "#e0e0e0" }}>
+          <div style={{ maxWidth: 900, margin: "0 auto", padding: "20px 16px" }}>
+            <NavBar />
           <div style={{ display: "flex", gap: 6, marginBottom: 16, alignItems: "center", flexWrap: "wrap" }}>
-            {BP.map(p => <button key={p} onClick={() => { setBoardPos(p); setPreviewId(null); }} style={{ padding: "8px 20px", fontSize: 14, fontWeight: 800, fontFamily: mono, background: pos === p ? "#D4AF3722" : "#111", border: pos === p ? "2px solid #D4AF37" : "2px solid #222", borderRadius: 4, color: pos === p ? "#D4AF37" : "#666", cursor: "pointer", letterSpacing: 2 }}>{p}</button>)}
+            <button onClick={() => { setBoardView("index"); setPreviewId(null); }} style={{ padding: "6px 14px", fontSize: 10, fontFamily: mono, background: "transparent", border: "1px solid #333", borderRadius: 4, color: "#888", cursor: "pointer" }}>&larr; ALL BOARDS</button>
             <div style={{ flex: 1 }} />
-            <button onClick={() => setBoardTab("hs")} style={{ padding: "6px 14px", fontSize: 10, fontFamily: mono, background: boardTab === "hs" ? "#27AE6022" : "transparent", border: boardTab === "hs" ? "1px solid #27AE60" : "1px solid #333", borderRadius: 4, color: boardTab === "hs" ? "#27AE60" : "#888", cursor: "pointer", fontWeight: boardTab === "hs" ? 700 : 400 }}>HIGH SCHOOL</button>
-            <button onClick={() => setBoardTab("portal")} style={{ padding: "6px 14px", fontSize: 10, fontFamily: mono, background: boardTab === "portal" ? "#2E86DE22" : "transparent", border: boardTab === "portal" ? "1px solid #2E86DE" : "1px solid #333", borderRadius: 4, color: boardTab === "portal" ? "#2E86DE" : "#888", cursor: "pointer", fontWeight: boardTab === "portal" ? 700 : 400 }}>TRANSFER PORTAL</button>
-            {boardTab === "hs" && <select value={boardHsYear || ""} onChange={e => setBoardHsYear(e.target.value || null)} style={{ ...inputStyle, maxWidth: 110, fontSize: 10, padding: "6px 10px" }}><option value="">All Years</option>{hsYears.map(y => <option key={y} value={y}>{y}</option>)}</select>}
+            <div style={{ fontSize: 16, fontWeight: 900, color: "#D4AF37", fontFamily: mono, letterSpacing: 2 }}>{pos} {boardTab === "portal" ? "PORTAL" : boardHsYear ? "CLASS OF " + boardHsYear : "ALL YEARS"}</div>
           </div>
           <div style={{ display: "flex", gap: 16 }}>
             <div style={{ flex: 1, minWidth: 0 }}>
